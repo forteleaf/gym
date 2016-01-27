@@ -1,0 +1,39 @@
+package com.gym.app.dao;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+
+import org.apache.ibatis.session.SqlSession;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Repository;
+
+import com.gym.app.dto.AndroidCheckDto;
+
+import com.gym.app.dto.AndroidTrainDto;
+import com.gym.app.dto.AndroidUserDto;
+import com.gym.app.dto.ScheduleDto;
+
+@Repository
+public class AndroidUserDao {
+
+	@Autowired
+	private SqlSession sqlSession;
+	private final String NS = "gym.user.UserMapper";
+
+	public AndroidUserDto androidLogin(HashMap<String, Object> map) {
+		return sqlSession.selectOne(NS+".androidLogin",map );
+	}
+	
+	public AndroidUserDto androidUserGetInfo(String id){
+		return sqlSession.selectOne(NS+".androidUserGetInfo",id);
+	}
+	public List<AndroidTrainDto> list(String iid){
+		return sqlSession.selectList(NS + ".androidUserList", iid);
+	}
+	public int androidCheck(HashMap<String, Object> map){
+		return sqlSession.update(NS + ".androidCheck", map);
+	}
+}
+
+

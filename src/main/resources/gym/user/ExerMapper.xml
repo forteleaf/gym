@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="gym.user.ExerMapper">
+	<!-- user 관련 데이터 베이스 저장 할 곳 -->
+	<insert id="insert" parameterType="com.gym.app.dto.ExerDto">
+		insert into exercise values(exer_seq.nextval,#{exname},#{exclass},#{calorie},#{aero},#{strength},#{stamina},#{exerinfo})
+	</insert>
+	<select id="select" resultType="com.gym.app.dto.ExerDto">
+		select * from exercise
+	</select>
+	<select id="chooseex" resultType="com.gym.app.dto.ExerDto" parameterType="int">
+		select * from exercise where exclass=#{value}
+	</select>
+	<select id="exerdetail" resultType="com.gym.app.dto.ExerDto" parameterType="int">
+		select * from exercise where exnum=#{value}
+	</select>
+	<delete id="delete" parameterType="int">
+		delete from exercise where exnum=#{value}
+	</delete>
+	<update id="update" parameterType="com.gym.app.dto.ExerDto">
+		update exercise set exname=#{exname},exclass=#{exclass},
+		calorie=#{calorie},aero=#{aero},strength=#{strength},stamina=#{stamina},exerinfo=#{exerinfo}
+		where exnum=#{exnum}
+	</update>
+	<select id="allexerpage" resultType="com.gym.app.dto.UserDto" parameterType="hashmap">
+		select * from
+		 (
+		  select AA.*,ROWNUM RNUM from
+		  (
+			select * from exercise order by unum desc
+		  )AA
+		 )
+		 <![CDATA[where rnum>=#{startRow} and rnum<=#{endRow}]]>
+	</select>
+	<select id="getexer" resultType="com.gym.app.dto.ExerDto" parameterType="String">
+		select * from exercise where exname=#{value}
+	</select>
+	
+</mapper>

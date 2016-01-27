@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="gym.user.FbcommMapper">
+	<insert id="insert" parameterType="com.gym.app.dto.FbcommDto">
+		insert into fbcomm 
+		values(#{fcnum},#{fbnum},#{id},#{comments},#{fcref},#{fclev},#{fcstep},sysdate)
+	</insert>
+	<select id="list" resultType="com.gym.app.dto.FbcommDto" parameterType="hashmap">
+	select *from(select aa.*,rownum rnum from
+	(select * from(select * from fbcomm where fbnum=#{fbnum}) order by fcref desc,fcstep asc )aa)
+		<![CDATA[where rnum>=#{startRow} and rnum<=#{endRow}]]>
+	</select>
+	<select id="find" resultType="com.gym.app.dto.FbcommDto" parameterType="com.gym.app.dto.FbcommDto">
+		select * from fbcomm where fcnum=#{fcnum} and fbnum=#{fbnum}
+	</select>
+	<select id="getMaxNum" resultType="int">
+		select NVL(max(fcnum),0) from fbcomm 
+	</select>
+	<select id="getCount" resultType="int">
+		select count(*) cnt from fbcomm
+	</select>
+	<select id="getCount1" parameterType="int" resultType="int">
+		select count(*) cnt from fbcomm where fbnum=#{value}
+	</select>
+	<delete id="delete" parameterType="int">
+		delete from fbcomm where fcnum=#{value}
+	</delete>
+	<update id="update" parameterType="com.gym.app.dto.FbcommDto">
+		update fbcomm set comments=#{comments} where fcnum=#{fcnum}
+	</update>
+	<update id="update1" parameterType="com.gym.app.dto.FbcommDto">
+		update fbcomm set fcstep=fcstep+1 where fcref=#{fcref} and fcstep>#{fcstep}
+	</update>
+	<select id="getPic" parameterType="String" resultType="String">
+		select savefile from users where id=#{value}
+	</select>
+</mapper>
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    

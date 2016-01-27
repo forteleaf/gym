@@ -1,0 +1,192 @@
+package com.gym.app.controller;
+
+import java.util.Calendar;
+import java.util.List;
+
+import javax.servlet.http.HttpSession;
+
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import com.gym.app.dto.DiaryDto;
+import com.gym.app.dto.ExerDto;
+import com.gym.app.service.DiaryService;
+import com.gym.app.service.ExerService;
+
+@Controller
+public class DiaryController {
+	@Autowired private DiaryService service;
+	@Autowired private ExerService service2;
+
+	@RequestMapping(value="/diary/loaddiary", method=RequestMethod.GET)
+	public String loaddiary(HttpSession session,String id){
+		System.out.println("cccc");
+		return ".diary.userdiary";
+	}
+	@RequestMapping(value="/diary/loaddiary1", method=RequestMethod.GET)
+	public String loaddiary1(HttpSession session,String id){
+	
+		return "diary/userdiary";
+	}
+	/*
+	@RequestMapping(value="/diary/schedule", method=RequestMethod.GET)
+	public String loadschedule(HttpSession session){
+		//int grade=service.getGrade(id);
+		System.out.println("내목소리들리니?");
+		String grade=(String)session.getAttribute("grade");
+		//int grade1=Integer.valueOf(grade);
+		System.out.println("회원등급:" + grade);
+		if(grade.equals("1")){//관리자로 로그인하면
+			return "schedule/schedule_manager";
+		}else if(grade.equals("2")){//직원으로 로그인하면
+			return "schedule/ischedule";
+		}else{//회원으로 로그인하면
+			return "schedule/schedule_member";
+		}
+	}
+	*/
+	
+	@RequestMapping(value="/diary/selectid", method=RequestMethod.GET,
+			produces="application/json;charset=utf-8")
+	@ResponseBody
+	public String selectid(HttpSession session){
+		String id=(String)session.getAttribute("id");
+		List<DiaryDto> diary=service.selectid(id);
+		JSONArray arr=new JSONArray();
+		for(DiaryDto mm:diary){
+			JSONObject obj=new JSONObject();
+			obj.put("d_num", mm.getD_num());
+			obj.put("id", mm.getId());
+			obj.put("exername", mm.getExername());
+			obj.put("d_date", mm.getD_date().toString());
+			obj.put("diary", mm.getDiary());
+			obj.put("start", mm.getStartd());
+			obj.put("end", mm.getEndd());
+			obj.put("d_title", mm.getD_title());
+			obj.put("title", mm.getD_title());
+			obj.put("weight", mm.getWeight());
+			//obj.put("color", "red");
+			
+			//obj.put("color",mm.getColor());
+			arr.add(obj);
+		}
+		return arr.toString();
+	}
+	@RequestMapping(value="/diary/insert", method=RequestMethod.GET,
+			produces="application/json;charset=utf-8")
+	@ResponseBody
+	public String insertD(
+			String id,String exername,String diary,
+			long startDate,long endDate,String d_title,int weight){
+		System.out.println("운동정보");
+		DiaryDto dto=new DiaryDto(0, id, exername, null, diary, startDate, endDate, d_title, weight);
+		int n=service.insert(dto);
+		JSONObject obj=new JSONObject();
+		if(n>0){
+			obj.put("result", "success");
+		}else{
+			obj.put("result", "fali");
+		}
+		return obj.toString();
+	}
+	@RequestMapping(value="/diary/delete/{d_num}")
+	@ResponseBody
+	public String deldiary(@PathVariable("d_num")int d_num){
+		int n=service.delete(d_num);
+		JSONObject obj=new JSONObject();
+		if(n>0){
+			obj.put("result", "success");
+		}else{
+			obj.put("result", "fail");
+		}
+		return obj.toString();
+	}
+	@RequestMapping(value="/diary/update", method=RequestMethod.GET
+			,produces="application/json;charset=utf-8")
+	@ResponseBody
+	public String update(String ud_title,String udiary,String uexername,int ud_num,int uweight){
+		System.out.println("넘냐?------------------------------------------------------------------------------------------------");
+		System.out.println("넘어오니?" + ud_title);
+		System.out.println("sssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss");
+		System.out.println("체중?" + uweight);
+		DiaryDto dto=new DiaryDto(ud_num, null, uexername, null, udiary, 0, 0, ud_title, uweight);
+		JSONObject obj=new JSONObject();
+		int n=service.update(dto);
+		if(n>0){
+			obj.put("result", "success");
+		}else{
+			obj.put("result", "fail");
+		}
+		return obj.toString();
+	}
+	@RequestMapping(value="/diary/check/{start}" ,method=RequestMethod.GET
+			,produces="application/json;charset=utf-8")
+	@ResponseBody
+	public String checkdiary(@PathVariable("start")long start){
+		DiaryDto dto=service.check(start);
+		JSONObject obj=new JSONObject();
+		if(dto==null){
+			obj.put("check", "true");
+		}else{
+			obj.put("check", "false");
+		}
+		return obj.toString();
+	}
+	@ResponseBody
+	@RequestMapping(value="/diary/count/{id}" ,method=RequestMethod.GET,produces="application/json;charset=utf-8")
+	public String count(@PathVariable("id")String id){
+		//System.out.println("id:" + id);
+		List<DiaryDto> list=service.count(id);
+		JSONArray arr=new JSONArray();
+		Calendar calendar = Calendar.getInstance();
+		for(int i=0;i<list.size();i++){
+			JSONObject obj=new JSONObject();
+			
+			String exn=list.get(i).getExername();
+			
+			System.out.println("뭐지:" + list.get(i).getExername());
+			
+			
+			ExerDto exer=service2.getexer(exn);
+			if(exer==null){
+				System.out.println("값없어");
+			}
+			
+			System.out.println("뭐지");
+			System.out.println("뭐냐교" + exer.getCalorie());
+			
+			//System.out.println("운동이당:" + list.get(i).getExername());
+			//System.out.println("칼로리당:" + exer.getExname());
+			calendar.setTimeInMillis(list.get(i).getStartd());
+			int mYear = calendar.get(Calendar.YEAR);
+			int mMonth = calendar.get(Calendar.MONTH);
+			int mDay = calendar.get(Calendar.DAY_OF_MONTH);
+			String yy=Integer.toString(mYear);
+			String mm=Integer.toString(mMonth)+1;
+			String dd=Integer.toString(mDay);
+			
+			String exdate=yy + "년" + mm + "월" + dd + "일";
+			//System.out.println("년도:" + exdate);
+			obj.put("date", exdate);
+			obj.put("calo", exer.getCalorie());
+			obj.put("weight", list.get(i).getWeight());
+			arr.add(obj);
+		}
+		return arr.toString();
+	}
+	@RequestMapping("/diary/userexer")
+	public String userexer(){
+		return ".diary.userexer";
+	}
+	@RequestMapping("/diary/userweight")
+	public String userweight(){
+		return ".diary.userweight";
+	}
+	
+}	

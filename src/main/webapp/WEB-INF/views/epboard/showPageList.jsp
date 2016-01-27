@@ -1,0 +1,253 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+<%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt"%>
+<jsp:useBean id="now" class="java.util.Date" />
+<c:set var="toDate"> 
+<fmt:formatDate value="${now }" pattern="yyyy-MM-dd"/> 
+</c:set> 
+<script>
+$(function(){
+	$("#btnWriteEpboard").click(function(){
+		location.href="/epboard/insert";
+	});
+	// 메세지 보내기를 클릭 했을 때, 이벤트
+	$(".btnSend").click(function(){
+		$("#content").val("");
+		$("#msgSend").modal({backdrop: false});
+    });
+
+	// 쪽지 submit
+	$("#msgSendForm").submit(function(event){
+		event.preventDefault();
+		if($("#content").val().length <= 0 ){
+		return;
+		}
+		$.ajax({
+			  type: "POST",
+			  url: "/msg/send/",
+			  data: $("#msgSendForm").serialize(),
+			  success:function(data){
+				  if(data == "success"){
+					$("#msgSend").modal("hide");
+					$("#msgSuccess").modal();
+				  }else{
+					$("#msgSend").modal("hide");
+					$("#msgFail").modal();
+				  }
+			  }
+		});
+	});
+});
+</script>
+
+
+<!-- 쪽지 보내기 form -->
+<div class="modal fade" id="msgSend" role="dialog">
+  <div class="modal-dialog">
+    <div class="modal-content">
+       <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal"><span class="glyphicon glyphicon-remove"></span></button>
+        <h4 class="modal-title">쪽지 보내기</h4>
+      </div>
+        <form role="form" id="msgSendForm">
+      <div class="modal-body">
+          <!-- 로그인한 아이디 -->
+          <input type="hidden" value="${id }" id="id" name="id">
+          <input type="hidden" value="" id="recv_id" name="recv_id">
+          <div class="form-group">
+			<label for="comment">보낼 메세지 : </label>
+			<textarea class="form-control" rows="3" id="content" name="content"></textarea>
+		  </div>
+	  </div>
+	  <div class="modal-footer">
+	    <button type="submit" class="btn btn-success">Send</button>
+	    <button type=reset class="btn btn-danger" data-dismiss="modal">Close</button>
+	  </div>
+	    </form>
+    </div>
+  </div>
+</div>
+
+<!-- 에러보내기  -->
+<div id="msgSuccess" class="modal fade" role="dialog">
+  <div class="modal-dialog">
+    <div class="modal-content alert alert-success">
+		  <strong>성공!</strong> 메세지 보내기가 성공 했습니다.
+    </div>
+  </div>
+</div>
+<div id="msgFail" class="modal fade" role="dialog">
+  <div class="modal-dialog">
+    <div class="modal-content alert alert-danger">
+		  <strong>실패!!</strong> 메세지 보내기가 실패 했습니다.
+    </div>
+  </div>
+</div>
+
+<!-- 본문 -->
+<div class="well-bg bg-info">
+<div class="container">
+	<h1>후기</h1>
+</div>
+
+<hr>
+<table class="table table-hover">
+	
+	<tr style="background-color: #dff0d8"> 
+		<th style="width:1px;"></th><th>글번호</th><th>제목</th><th>작성자</th><th>등록일</th><th>조회수</th><!-- <th>삭제</th> -->
+		<c:choose>
+ 		<c:when test="${grade==1 }">
+		<th>삭제</th>
+		</c:when>
+		</c:choose>
+	</tr>
+	<c:forEach var="dto" items="${list}">
+		
+		<tr>
+			<td></td>
+			<td>${dto.epnum }</td>
+			<td><a href="/epboard/detail?epnum=${dto.epnum}&sid=${id}">${dto.title }</a>
+			<c:if test="${toDate eq dto.regdate}"><button class="btn btn-warning btn-xs">New</button></c:if></td>
+  <td>
+    <c:choose>
+      <c:when test="${grade >= 1}">
+	    <span class="dropdown" style="">
+	    <a class="dropdown-toggle" data-toggle="dropdown" href="#" onclick="$('#recv_id').val('${dto.id}')">${dto.id }</a>
+	    <span class="dropdown-menu">
+	      <li><a type="button" class="btnSend" href="#">쪽지 보내기</a>
+	    </span>
+	    </span>
+      </c:when>
+      <c:otherwise>
+        <span class="dropdown" style="">
+	    ${dto.id }
+	    <span class="dropdown-menu">
+	      <li><a type="button" class="btnSend" href="#">쪽지 보내기</a>
+	    </span>
+	    </span>
+      </c:otherwise>
+      
+    </c:choose>
+    </td>
+			<%-- <td><a href="#" data-toggle="popover" data-trigger="focus" data-content="쪽지 보내기">${dto.id }</a></td> --%>
+			<td>${dto.regdate  }</td>
+			<td>${dto.hit }</td>
+			<c:choose>
+ 			<c:when test="${grade==1 }">
+				<td><a href="/epboard/delete?epnum=${dto.epnum}">삭제</a></td>
+			</c:when>
+			</c:choose>
+			<%-- <td><a href="/qna/delete?qnanum=${dto.qnanum}">삭제</a></td> --%>
+		</tr>
+	</c:forEach>
+</table>
+
+<!-- footer 페이지 처리 -->
+<div class="container-fluid text-center">
+<div class="row">
+<div class="col-dm-4">
+	<ul class="pagination">
+		<c:choose>
+			<c:when test="${pu.startPage>=11 }">
+				<li><a href="/epboard/plist?pageNum=${pu.startPage-1 }&sch_type=${sch_type }&sch_value=${sch_value}">이전페이지</a></li>
+			</c:when>
+			<c:otherwise>
+		   		<li class="disabled"><a href="#">이전페이지</a></li>
+			</c:otherwise>
+		</c:choose>
+		<c:forEach var="i" begin="${pu.startPage }" end="${pu.endPage }">
+			<c:choose>
+		    	<c:when test="${i == pu.pageNum }">
+			    	<li class="active"><a href="/epboard/plist?pageNum=${i }&sch_type=${sch_type }&sch_value=${sch_value}">${i }</a></li>
+		    	</c:when>
+		    	<c:otherwise>
+					<li><a href="/epboard/plist?pageNum=${i }&sch_type=${sch_type }&sch_value=${sch_value}">${i }</a></li>
+		    	</c:otherwise>
+		  	</c:choose>
+		</c:forEach>
+		<c:choose>
+   	  		<c:when test="${pu.endPage<pu.pageCount }">
+			  	<li><a href="/epboard/plist?pageNum=${pu.endPage+1 }&sch_type=${sch_type }&sch_value=${sch_value}">다음페이지</a></li>
+			</c:when>
+	  		<c:otherwise>
+  				<li class="disabled"><a href="#">다음페이지</a></li>
+			</c:otherwise>
+	  	</c:choose>
+	</ul>
+</div>
+</div>
+</div>
+<!-- 검색하는 곳 -->
+
+	<div class="row">
+		<div class="col-md-4 col-md-offset-4">
+			<form id="form_search" method="get" action="/epboard/plist">
+				<!-- input-group -->
+				<div class="input-group">
+					<!--검색 영역-->
+					<span class="input-group-btn">
+						<button type="button" class="btn btn-default dropdown-toggle"
+							data-toggle="dropdown" aria-expanded="false">
+							<span id="search_kind_txt">제목 </span>&nbsp;<span class="caret"></span>
+						</button>
+						
+						<ul id="search_kind_menu" class="dropdown-menu" role="menu">
+							<li><a value="title">제목 </a></li>
+							<li><a value="content">내용</a></li>
+							<li><a value="id">아이디</a></li>
+						</ul> <input id="search_kind_input" name="sch_type" value="title"
+						type="hidden">
+					</span>
+					<script>
+						$("#search_kind_menu a").click(function() {
+							var txt = $(this).html();
+							$('#search_kind_txt').html(txt); // 그냥 출력
+							$("#search_kind_input").val($(this).attr('value')); // 검색값 입력
+						});
+						$("#search_kind_menu a[value='title']").trigger('click');
+					</script>
+					<!--검색 영역-->
+					<input class="form-control" name="sch_value" value="" type="text">
+					<span class="input-group-btn"> <input
+						class="btn btn-default" value="검색" type="submit">
+					</span>
+				</div>
+				<!-- /input-group -->
+			</form>
+<div class="text-center">
+	<c:choose>
+		<c:when test="${empty id }">
+		</c:when>
+		<c:otherwise>
+			<button class="btn btn-primary btn-sm text-center" id="btnWriteEpboard">글쓰기</button>
+		</c:otherwise>
+	</c:choose>
+</div>
+		</div>
+	</div>
+
+<!-- 
+<div class="container text-center">
+<form id="form_search" method="get" action="/epboard/plist">
+  <select class="input-sm" id="sch_type" name="sch_type">
+       <option value="title" selected="selected">제목</option>
+       <option value="content">내용</option>
+       <option value="id">작성자</option>
+  </select>
+  <input type="text" class="input-sm" id="sch_value" name="sch_value" />
+  <input type="submit" class="btn btn-default btn-sm" value="검색">
+ 
+</form>
+ <c:choose>
+ <c:when test="${empty id }">
+  로그인 후 글작성
+ </c:when>
+ <c:otherwise>
+  <button class="btn btn-primary btn-sm" id="btnWriteEpboard" style="float: left;">글쓰기</button>
+ </c:otherwise>
+</c:choose>
+</div>
+ -->
+</div>
+<div style="height: 150px;"></div>
