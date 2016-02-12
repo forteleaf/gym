@@ -133,7 +133,7 @@ $(function(event){
     <nav class="col-sm-3 bg-info" id="myScrollspy">
       <ul class="nav nav-pills nav-stacked" data-spy="affix" data-offset-top="205">
         <li><a href="#section1">프로그램</a></li>
-        <li><a href="#section2">시스템</a></li>
+        <li><a href="#section2">시스템</a></li>ddS
         <li><a href="#section3">대표님</a></li>
         <li><a href="#section4">소개영상</a></li>
       </ul>
