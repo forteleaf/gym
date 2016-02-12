@@ -1,0 +1,20 @@
+package com.gym.app.service;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+
+import com.gym.app.dto.AndroidCheckDto;
+
+import com.gym.app.dto.AndroidTrainDto;
+import com.gym.app.dto.AndroidUserDto;
+import com.gym.app.dto.ScheduleDto;
+
+
+public interface AndroidUserService {
+	AndroidUserDto androidLogin(HashMap<String,Object> map);
+	AndroidUserDto androidUserGetInfo(String id);
+	List<AndroidTrainDto> list(String iid);
+	int androidCheck(HashMap<String, Object> map);
+	
+}

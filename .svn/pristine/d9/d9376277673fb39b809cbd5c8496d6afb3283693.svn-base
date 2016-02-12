@@ -1,0 +1,57 @@
+package com.gym.app.service;
+
+import java.util.HashMap;
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.gym.app.dao.InfoboardDao;
+import com.gym.app.dto.InfoboardDto;
+
+
+
+
+
+@Service
+public class InfoboardServiceImpl implements InfoboardService{
+	@Autowired private InfoboardDao ifdao;
+	@Transactional
+	@Override
+	public int insert(InfoboardDto dto) {	
+		return ifdao.insert(dto);
+	}
+	@Override
+	public int delete(int ifnum){
+		return ifdao.delete(ifnum);
+	}
+	@Override
+	public int update(InfoboardDto dto) {
+		return ifdao.update(dto);
+	}
+	@Override
+	public InfoboardDto getinfo(int ifnum) {
+		return ifdao.getInfo(ifnum);
+	}
+	@Override
+	public List<InfoboardDto> plist(HashMap<String, Object> map) {		
+		return ifdao.plist(map);
+	}
+	@Override
+	public InfoboardDto next(int ifnum){
+		return ifdao.next(ifnum);
+	}
+	@Override
+	public InfoboardDto prev(int ifnum){
+		return ifdao.prev(ifnum);
+	}
+	@Override
+	public int addHit(int ifnum){
+		return ifdao.addHit(ifnum);
+	}
+	public int getCount(HashMap<String, Object> map1){
+		return ifdao.getCount(map1);
+	}
+
+}

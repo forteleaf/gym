@@ -1,0 +1,102 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+<%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
+
+<!--     Navigation
+    <nav class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+        <div class="container">
+            Brand and toggle get grouped for better mobile display
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <a class="navbar-brand" href="#">Start Bootstrap</a>
+            </div>
+            Collect the nav links, forms, and other content for toggling
+            <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+                <ul class="nav navbar-nav">
+                    <li>
+                        <a href="#">About</a>
+                    </li>
+                    <li>
+                        <a href="#">Services</a>
+                    </li>
+                    <li>
+                        <a href="#">Contact</a>
+                    </li>
+                </ul>
+            </div>
+            /.navbar-collapse
+        </div>
+        /.container
+    </nav>
+ -->
+    <!-- Page Content -->
+    <div class="container">
+
+        <!-- Introduction Row -->
+        <div class="row">
+            <div class="col-lg-12">
+                <h1 class="page-header">About Us
+                    <small>It's Nice to Meet You!</small>
+                </h1>
+                <p>우여곡절도 많았지만, 이렇게 하나의 홈페이지를 만들었다는 사실에 대해서 감사한다.</p>
+            </div>
+        </div>
+
+        <!-- Team Members Row -->
+        <div class="row">
+            <div class="col-lg-12">
+                <h2 class="page-header">Our Team</h2>
+            </div>
+            <div class="col-lg-4 col-sm-6 text-center">
+                <img class="img-circle img-responsive img-center" width="200" height="200" src="/resources/private/forteleaf_logo.png" alt="">
+                <h3>황정환 黃晶煥
+                    <small>총괄</small>
+                </h3>
+                <p>팀을 위해서 열심히 했는데, 흐엉. 좋은 작품으로 남게 되었으면 좋겠다.</p>
+                <p>징징징,, 12월 31일 2015년도 이제 지나간다. 앞으로 프로젝트가 10일 정도 남았는데, 4일동안 순식간에 지나갔다. 빨리 제 모습을 찾았으면 하는 마음이 크다.</p>
+            </div>
+            <div class="col-lg-4 col-sm-6 text-center">
+                <img class="img-circle img-responsive img-center" width="200" height="200" src="http://placehold.it/200x200" alt="">
+                <h3>김종혁
+                    <small>로그인 세션,마이페이지,관리자모드 등등....</small>
+                </h3>
+                <p>나 3일동안 뭐했니.....ㅠㅠ</p>
+            </div>
+            <div class="col-lg-4 col-sm-6 text-center">
+                <img class="img-circle img-responsive img-center" width="200" height="200" src="http://placehold.it/200x200" alt="">
+                <h3>John Smith
+                    <small>Job Title</small>
+                </h3>
+                <p>What does this team member to? Keep it short! This is also a great spot for social links!</p>
+            </div>
+            <div class="col-lg-4 col-sm-6 text-center">
+                <img class="img-circle img-responsive img-center" width="200" height="200" src="http://placehold.it/200x200" alt="">
+                <h3>John Smith
+                    <small>Job Title</small>
+                </h3>
+                <p>What does this team member to? Keep it short! This is also a great spot for social links!</p>
+            </div>
+            <div class="col-lg-4 col-sm-6 text-center">
+                <img class="img-circle img-responsive img-center" width="200" height="200" src="http://placehold.it/200x200" alt="">
+                <h3>John Smith
+                    <small>Job Title</small>
+                </h3>
+                <p>What does this team member to? Keep it short! This is also a great spot for social links!</p>
+            </div>
+            <div class="col-lg-4 col-sm-6 text-center">
+                <img class="img-circle img-responsive img-center" width="200" height="200" src="http://placehold.it/200x200" alt="">
+                <h3>John Smith
+                    <small>Job Title</small>
+                </h3>
+                <p>What does this team member to? Keep it short! This is also a great spot for social links!</p>
+            </div>
+        </div>
+
+        <hr>
+
+    </div>

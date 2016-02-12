@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="gym.user.QnacommMapper">
+	<insert id="insert" parameterType="com.gym.app.dto.QnacommDto">
+		insert into qnacomm 
+		values(#{qcnum},#{qnanum},#{id},#{comments},#{qcref},#{qclev},#{qcstep},sysdate)
+	</insert>
+	<select id="list" resultType="com.gym.app.dto.QnacommDto" parameterType="hashmap">
+	select *from(select aa.*,rownum rnum from
+	(select * from(select * from qnacomm where qnanum=#{qnanum}) order by qcref desc,qcstep asc )aa)
+		<![CDATA[where rnum>=#{startRow} and rnum<=#{endRow}]]>
+	</select>
+	<select id="find" resultType="com.gym.app.dto.QnacommDto" parameterType="com.gym.app.dto.QnacommDto">
+		select * from qnacomm where qcnum=#{qcnum} and qnanum=#{qnanum}
+	</select>
+	<select id="getMaxNum" resultType="int">
+		select NVL(max(qcnum),0) from qnacomm 
+	</select>
+	<select id="getCount" resultType="int" parameterType="int">
+		select count(*) cnt from qnacomm where qnanum=#{value}
+	</select>
+	<select id="getCount1" resultType="int">
+		select count(*) cnt from qnacomm
+	</select>
+	<delete id="delete" parameterType="int">
+		delete from qnacomm where qcnum=#{value}
+	</delete>
+	<update id="update" parameterType="com.gym.app.dto.QnacommDto">
+		update qnacomm set comments=#{comments} where qcnum=#{qcnum}
+	</update>
+	<update id="update1" parameterType="com.gym.app.dto.QnacommDto">
+		update qnacomm set qcstep=qcstep+1 where qcref=#{qcref} and qcstep>#{qcstep}
+	</update>
+	<select id="getPic" parameterType="String" resultType="String">
+		select savefile from users where id=#{value}
+	</select>
+</mapper>
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    

@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="gym.user.NoticeMapper">
+	<insert id="insert" parameterType="com.gym.app.dto.NoticeDto">
+		insert into notice values(notice_seq.nextval,#{id},#{title},#{content},0,sysdate)
+	</insert>
+	<select id="getCount" resultType="int" parameterType="hashmap">
+		select count(*) cnt from notice
+			<where>
+			<choose>
+				<when test="sch_type=='title'">
+				and title like concat(concat('%',#{sch_value}),'%')
+				</when>
+				<when test="sch_type=='content'">
+				and content like concat(concat('%',#{sch_value}),'%')
+				</when>
+				<when test="sch_type=='id'">
+				and id like concat(concat('%',#{sch_value}),'%')
+				</when>
+			</choose>
+		</where>
+	</select>
+	<select id="nlist" parameterType="hashmap" resultType="com.gym.app.dto.NoticeDto">
+		select * from (select aa.*,rownum rnum from
+		(select * from notice 
+		<where>
+			<choose>
+				<when test="sch_type=='title'">
+				and title like concat(concat('%',#{sch_value}),'%')
+				</when>
+				<when test="sch_type=='content'">
+				and content like concat(concat('%',#{sch_value}),'%')
+				</when>
+				<when test="sch_type=='id'">
+				and id like concat(concat('%',#{sch_value}),'%')
+				</when>
+			</choose>
+		</where>
+		order by ntnum desc)aa )
+		<![CDATA[where rnum>=#{startRow} and rnum<=#{endRow}]]>
+	
+			
+		
+	</select>
+	<select id="getInfo" parameterType="int" resultType="com.gym.app.dto.NoticeDto">
+		select * from notice where ntnum=#{value}
+	</select>
+		<update id="addHit" parameterType="int">
+		update notice
+		set hit=hit+1
+		where ntnum=#{value}
+	</update>
+	<!-- 이전글 -->
+	<select id="prev" parameterType="int" resultType="com.gym.app.dto.NoticeDto">
+		select * from
+ 		(select * from notice
+  		<![CDATA[where ntnum<#{value} order by ntnum desc]]>
+  		)
+		where rownum=1
+	</select>
+	<!-- 다음글 -->
+	<select id="next" parameterType="int" resultType="com.gym.app.dto.NoticeDto">
+		select * from
+ 		(select * from notice
+  		<![CDATA[where ntnum>${value} order by ntnum asc]]>
+  		)
+		where rownum=1
+	</select>
+	<update id="update" parameterType="com.gym.app.dto.NoticeDto">
+		update notice set title=#{title},content=#{content} where ntnum=#{ntnum}
+	</update>
+	<delete id="delete" parameterType="int">
+		delete from notice where ntnum=#{value}
+	</delete>
+	<!-- 최근 공지사항 글을 뽑아오는 곳 -->
+	<select id="alramnotice" resultType="com.gym.app.dto.NoticeDto">
+	  select a.*,rownum from (select * from notice order by ntnum desc)a 
+	  <![CDATA[ where rownum < 6]]>
+	</select>
+</mapper>
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    

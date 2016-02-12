@@ -1,0 +1,424 @@
+package com.gym.app.controller;
+
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
+
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.stereotype.Repository;
+import org.springframework.ui.Model;
+import org.springframework.util.FileCopyUtils;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.multipart.MultipartFile;
+
+import com.gym.app.dto.InstructorDto;
+import com.gym.app.dto.NoticeDto;
+import com.gym.app.dto.QnaDto;
+import com.gym.app.dto.UserDto;
+import com.gym.app.service.InstructorService;
+import com.gym.app.service.NoticeService;
+import com.gym.app.service.QnaService;
+import com.gym.app.service.UserService;
+import com.gym.app.util.PageUtil;
+
+@Controller
+public class UserController {
+	@Autowired private UserService service;
+	@Autowired private InstructorService service2;
+	@Autowired private QnaService qnaService;
+	@Autowired private NoticeService noticeService;
+	//회원가입 페이지로
+	@RequestMapping(value="/user/signup",method=RequestMethod.GET)
+	public String insertForm(UserDto dto){
+		return ".user.userinsert";
+	}
+	//회원가입
+	@RequestMapping(value="/user/signup",method=RequestMethod.POST)
+	public String insertUser(UserDto dto,MultipartFile file1, HttpSession session){
+		if(file1.isEmpty()){
+			UserDto insertdto=new UserDto
+					(dto.getUnum(), dto.getUname(), dto.getId(), dto.getPwd(), dto.getEmail(), 
+							dto.getAddr(), dto.getSex(), dto.getBirth(), null, 3, "no-user.jpg", "no-user.jpg", 0,dto.getPhone());
+			int n=service.insert(insertdto);
+			return ".user.userinsert";
+		}
+		//upload폴더의 절대경로
+		String upload=session.getServletContext().getRealPath("/resources/userphoto");
+		//전송된 파일명
+		String orgfile=file1.getOriginalFilename();
+		//저장할 파일명
+		String savefile=UUID.randomUUID()+"_"+orgfile;
+		//전송된 파일 읽어오기 스트림
+		try{
+			InputStream is=file1.getInputStream();
+			FileOutputStream fos=new FileOutputStream(upload + "\\" + savefile);
+			FileCopyUtils.copy(is, fos);
+			is.close();
+			fos.close();
+			//DB저장
+			File f= new File(upload + "\\" + savefile);
+			long filesize=file1.getSize();
+			UserDto insertdto=new UserDto
+					(dto.getUnum(), dto.getUname(), dto.getId(), dto.getPwd(), dto.getEmail(), 
+							dto.getAddr(), dto.getSex(), dto.getBirth(), null, 3, orgfile, savefile, filesize,dto.getPhone());
+			
+			int n=service.insert(insertdto);
+			if(n>0){
+				System.out.println("추가성공");
+				return ".user.userinsert";
+			}else{
+				System.out.println("추가실패");
+				return ".home";
+			}
+		}catch(IOException ie){
+			System.out.println(ie.getMessage());
+			return ".home";
+		}
+	}
+	//id중복체크
+	@RequestMapping("/user/idcheck/{id}")
+	@ResponseBody
+	public String idcheck(@PathVariable("id")String id){
+		UserDto dto=service.idcheck(id);
+		JSONObject arr=new JSONObject();
+		if(dto!=null){
+			arr.put("result", "error");
+			arr.put("id", dto.getId());
+		}else{
+			arr.put("result", "clear");
+			arr.put("id", id);
+		}
+		return arr.toString();
+	}
+	//로그인체크
+	@RequestMapping(value="/user/login",method=RequestMethod.GET)
+	public String loginform(){
+		return ".user.login";
+	}
+	//로그인
+	
+	@RequestMapping(value="/user/login",method=RequestMethod.POST)
+	public String login(HttpSession session, HttpServletRequest request, Model model){
+		String id=request.getParameter("id");
+		String pwd=request.getParameter("pwd");
+		
+		List<QnaDto> qnalist = qnaService.alramQna();
+		List<NoticeDto> noticelist = noticeService.alramNotice();
+		model.addAttribute("qnalist",qnalist);
+		model.addAttribute("noticelist",noticelist);
+
+		HashMap<String, Object> map=new HashMap<String, Object>();
+		JSONObject arr=new JSONObject();
+		
+		map.put("id", id);
+		map.put("pwd", pwd);
+		UserDto dto=service.logincheck(map);
+		if(dto!=null){
+			 session.setAttribute("id", dto.getId());
+			 session.setAttribute("grade", dto.getGrade());
+			 return ".main";
+		 }else{
+			 request.setAttribute("errMsg", "없데요ㅠㅠ");
+			 return ".main";
+		 }
+	}
+	//로그아웃
+	@RequestMapping(value="/user/logout" ,method=RequestMethod.GET)
+	public String logout(HttpSession session, Model model){
+		List<QnaDto> qnalist = qnaService.alramQna();
+		List<NoticeDto> noticelist = noticeService.alramNotice();
+		model.addAttribute("qnalist",qnalist);
+		model.addAttribute("noticelist",noticelist);		
+
+		session.invalidate();
+		return ".main";
+	}
+	@RequestMapping(value="/user/mypage", method=RequestMethod.GET)
+	public String mypage(Model model,HttpSession session){
+	//public String mypage(String id, Model model,HttpSession session){
+		String ids=(String)session.getAttribute("id");
+		InstructorDto idto=service2.seltrain(ids);
+		UserDto dto=service.idcheck(ids);
+		model.addAttribute("dto",dto);
+		model.addAttribute("idto",idto);
+		return ".user.mypage";
+	}
+	@RequestMapping(value="/user/update", method=RequestMethod.GET)
+	public String updateform(String id, Model model){
+		UserDto dto=service.idcheck(id);
+		model.addAttribute("dto",dto);
+		return ".user.updateform";
+	}
+	@RequestMapping(value="/user/update", method=RequestMethod.POST)
+	public String update(UserDto dto,MultipartFile file1, HttpSession session){
+		if(file1.isEmpty()){
+			UserDto insertdto=new UserDto
+					(dto.getUnum(), dto.getUname(), dto.getId(), dto.getPwd(), dto.getEmail(), 
+							dto.getAddr(), dto.getSex(), dto.getBirth(), null, 0, "", "", 0,dto.getPhone());
+			int n=service.update1(insertdto);
+			return "redirect:/user/mypage";
+		}
+		//upload폴더의 절대경로
+		String upload=session.getServletContext().getRealPath("/resources/userphoto");
+		//전송된 파일명
+		String orgfile=file1.getOriginalFilename();
+		//저장할 파일명
+		//String savefile=dto.getSavefile();
+		System.out.println(dto.getSavefile());
+		String savefile=UUID.randomUUID()+"_"+orgfile;
+		//전송된 파일 읽어오기 스트림
+		try{
+			//기존파일 삭제
+			File fdel=new File(upload + "\\" + dto.getSavefile());
+			fdel.delete();
+			//새로운파일 서버저장
+			InputStream is=file1.getInputStream();
+			FileOutputStream fos=new FileOutputStream(upload + "\\" + savefile);
+			FileCopyUtils.copy(is, fos);
+			is.close();
+			fos.close();
+			//DB저장
+			File f= new File(upload + "\\" + savefile);
+			long filesize=file1.getSize();
+			UserDto insertdto=new UserDto
+					(dto.getUnum(), dto.getUname(), dto.getId(), dto.getPwd(), dto.getEmail(), 
+							dto.getAddr(), dto.getSex(), dto.getBirth(), null, 0, orgfile, savefile, filesize,dto.getPhone());
+			
+			int n=service.update2(insertdto);
+			if(n>0){
+				System.out.println("수정성공");
+				return "redirect:/user/mypage";
+			}else{
+				System.out.println("수정실패");
+				return ".home";
+			}
+		}catch(IOException ie){
+			System.out.println(ie.getMessage());
+			return ".user.mypage";
+		}
+	}
+	@RequestMapping(value="/user/gradeup", method=RequestMethod.GET)
+	public String gradeups(UserDto dto){
+		System.out.println("id:" + dto.getId());
+		System.out.println("num:" + dto.getUnum());
+		System.out.println("grade:" + dto.getGrade());
+		
+		HashMap<String, Object> map=new HashMap<String, Object>();
+		//map.put("unum",dto.getUnum());
+		map.put("id",dto.getId());
+		map.put("grade",dto.getGrade());
+		service.gradeup(map);
+		System.out.println("여기까진?");
+		return "redirect:/user/userinfo?num=" + dto.getUnum() + "&id=" + dto.getId();
+	}
+	/*
+	@RequestMapping(value="/user/gradeup", method=RequestMethod.POST)
+	public String gradeup(UserDto dto){
+		System.out.println("id" + dto.getId());
+		System.out.println("grade:" + dto.getGrade());
+		
+		HashMap<String, Object> map=new HashMap<String, Object>();
+		map.put("id",dto.getId());
+		map.put("grade",dto.getGrade());
+		service.gradeup(map);
+		return "redirect:/user/userinfo?id=" + dto.getId() + "&num=" + dto.getUnum();
+	}
+	*/
+	
+	@RequestMapping(value="/user/alluserlist", method=RequestMethod.GET)
+	public String alluserlist(
+			@RequestParam(value="pageNum",defaultValue="1")int pageNum,	Model model){
+		
+		int rowCount=service.getallcnt();
+		PageUtil pu=new PageUtil(pageNum, rowCount, 10, 10);
+		HashMap<String, Integer> map=new HashMap<String, Integer>();
+		map.put("startRow", pu.getStartRow());
+		map.put("endRow", pu.getEndRow());
+		map.put("grade", 0);
+		List<UserDto> alluserlist=service.alluserlist(map);
+		model.addAttribute("userlist",alluserlist);
+		model.addAttribute("pu",pu);
+		model.addAttribute("map",map);
+		return ".user.alluserlist";
+	}
+	
+	@ResponseBody
+	@RequestMapping(value="/user/alluserlistjson", method=RequestMethod.GET,produces="application/json;charset=utf-8")
+	public String alluserlistjson(){
+		List<UserDto> list=service.alluserlistjson();
+		JSONArray arr = new JSONArray();
+		for( UserDto user : list){
+			JSONObject json = new JSONObject();
+			json.put("savefile", user.getSavefile());
+			arr.add(json);
+		}
+		return arr.toJSONString();
+	}
+	
+	@RequestMapping(value="/user/adminlist", method=RequestMethod.GET)
+	public String adminlist(
+			@RequestParam(value="pageNum",defaultValue="1")int pageNum,	Model model){
+		
+		int rowCount=service.getlistcnt(1);
+		PageUtil pu=new PageUtil(pageNum, rowCount, 10, 10);
+		//PageUtil ps=new PageUtil(pageNum, rowCount, rowBlockCount, pageBlockCount);
+		HashMap<String, Integer> map=new HashMap<String, Integer>();
+		map.put("startRow", pu.getStartRow());	
+		map.put("endRow", pu.getEndRow());
+		map.put("grade", 1);
+		List<UserDto> adminlist=service.selectuserlist(map);
+		model.addAttribute("userlist",adminlist);
+		model.addAttribute("pu",pu);
+		model.addAttribute("map",map);
+		return ".user.alluserlist";
+	}
+	@RequestMapping(value="/user/trainerlist", method=RequestMethod.GET)
+	public String trainerlist(
+			@RequestParam(value="pageNum",defaultValue="1")int pageNum,	Model model){
+		
+		int rowCount=service.getlistcnt(2);
+		PageUtil pu=new PageUtil(pageNum, rowCount, 10, 10);
+		HashMap<String, Integer> map=new HashMap<String, Integer>();
+		map.put("startRow", pu.getStartRow());
+		map.put("endRow", pu.getEndRow());
+		map.put("grade", 2);
+		List<UserDto> trainerlist=service.selectuserlist(map);
+		model.addAttribute("userlist",trainerlist);
+		model.addAttribute("pu",pu);
+		model.addAttribute("map",map);
+		return ".user.alluserlist";
+	}
+	@RequestMapping(value="/user/userlist", method=RequestMethod.GET)
+	public String userlist(
+			@RequestParam(value="pageNum",defaultValue="1")int pageNum,	Model model){
+		
+		int rowCount=service.getlistcnt(3);
+		PageUtil pu=new PageUtil(pageNum, rowCount, 10, 10);
+		HashMap<String, Integer> map=new HashMap<String, Integer>();
+		map.put("startRow", pu.getStartRow());
+		map.put("endRow", pu.getEndRow());
+		map.put("grade", 3);
+		List<UserDto> userlist=service.selectuserlist(map);
+		model.addAttribute("userlist",userlist);
+		model.addAttribute("pu",pu);
+		model.addAttribute("map",map);
+		return ".user.alluserlist";
+	}
+	@RequestMapping(value="/user/userinfo", method=RequestMethod.GET)
+	public String userinfo(int num,String id,Model model){
+		//UserDto dto=service.idcheck(id);
+		System.out.println("컨트롤러id:" + id);
+		System.out.println("컨트롤러num:" + num);
+		UserDto dto=service.findnumuser(num);
+		UserDto prev=service.findprevuser(num);
+		UserDto next=service.findnextuser(num);
+		//prev.getId();
+		//next.getId();
+		
+		//System.out.println(id);
+		InstructorDto train=service2.seltrain(id);
+		model.addAttribute("train",train);
+		model.addAttribute("dto",dto);
+		//model.addAttribute("previd", prev.getId());
+		//model.addAttribute("nextid", next.getId());
+		//model.addAttribute("test","굳" );
+		model.addAttribute("prev", prev);
+		model.addAttribute("next", next);
+		return ".user.userinfo";
+		/*
+		if(train!=null){
+		}else{
+			HashMap<String, Integer> train2=new HashMap<String, Integer>();
+			train2.put("work", 3);
+			model.addAttribute("train",train2);
+			model.addAttribute("dto",dto);
+			model.addAttribute("prev", prev);
+			model.addAttribute("next", next);
+			return ".user.userinfo";
+		}
+		*/
+		
+		
+		
+
+		
+	}
+	
+	@RequestMapping(value="/user/finduser", method=RequestMethod.POST)
+	public String finduser(
+			@RequestParam(value="pageNum",defaultValue="1")int pageNum,
+			String keyword, String field,Model model,HttpSession session){
+		System.out.println("오나묘");
+		HashMap<String, String> map=new HashMap<String, String>();
+		map.put("field", field);
+		map.put("keyword",keyword);
+		map.put("grade", "4");
+		int rowCount=service.findcnt(map);
+		PageUtil pu=new PageUtil(pageNum, rowCount, 10, 10);
+		
+		System.out.println("keyword:" + keyword);
+		System.out.println("field:" + field);
+		List<UserDto> dto=service.finduser(map);
+		
+		if(dto==null){
+			model.addAttribute("errMsg","없네요");
+			return "redirect:/user/alluserlist";
+		}else{
+			model.addAttribute("pu",pu);
+			model.addAttribute("userlist",dto);
+			model.addAttribute("map",map);
+			return ".user.alluserlist";
+		}
+	}
+	@RequestMapping("/user/userdiary")
+	public String userdiary(){
+		return ".user.userdiary";
+	}
+	
+	/*
+	//이전회원
+	@RequestMapping(value="/user/findprevuser", method=RequestMethod.GET)
+	public String findprevuser(int num,Model model){
+		System.out.println("넘오오나" + num);
+		UserDto dto=service.findprevuser(num);
+		if(dto==null){
+			model.addAttribute("noprevuser","없네요");
+			return "redirect:/user/alluserlist";
+		}else{
+			model.addAttribute("dto",dto);
+			return ".user.userinfo";
+		}
+	}
+	
+	//다음회원
+	@RequestMapping(value="/user/findnextuser", method=RequestMethod.GET)
+	public String findnextuser(int num,Model model){
+		System.out.println("넘오오나" + num);
+		UserDto dto=service.findnextuser(num);
+		
+			model.addAttribute("next", next);
+			model.addAttribute("dto",dto);
+			return ".user.userinfo";
+		/*
+			model.addAttribute("dto",dto);
+			return ".user.userinfo";
+		
+	}
+	*/
+	
+}

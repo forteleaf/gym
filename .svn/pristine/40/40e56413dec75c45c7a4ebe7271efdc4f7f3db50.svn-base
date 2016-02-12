@@ -1,0 +1,21 @@
+package com.gym.app.service;
+
+import java.util.HashMap;
+import java.util.List;
+
+import com.gym.app.dto.EpboardDto;
+
+
+
+public interface EpboardService {
+	int insert(EpboardDto dto);
+	int delete(int num);
+	int update(EpboardDto dto);
+	EpboardDto getinfo(int num);
+	List<EpboardDto> plist(HashMap<String, Object> map);
+	EpboardDto next(int num);
+	EpboardDto prev(int num);
+	int addHit(int num);
+	int getCount(HashMap<String, Object> map);
+	String getPic(String id);
+}

@@ -1,0 +1,11 @@
+create table epcomm
+(
+	ecnum number(6) primary key,
+	epnum number(6),
+	id varchar2(30) references users(id),
+	comments varchar2(150),
+	ecref number(5),
+	eclev number(5),
+	ecstep number(5),
+	regdate date
+);

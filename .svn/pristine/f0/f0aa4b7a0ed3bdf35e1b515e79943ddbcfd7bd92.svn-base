@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="gym.user.ScheduleMapper">
+<select id="slist" resultType="com.gym.app.dto.ScheduleDto">
+	select * from schedule
+</select>
+<insert id="insert" parameterType="com.gym.app.dto.ScheduleDto">
+	insert into schedule values(schedule_seq.nextval,#{id},#{iid},#{startdate},#{enddate},#{attendance},#{color})	
+</insert>
+<select id="select" parameterType="String" resultType="com.gym.app.dto.ScheduleDto">
+	select * from schedule where iid=#{value}
+</select>
+<select id="memberSelect" parameterType="String" resultType="com.gym.app.dto.ScheduleDto">
+	select * from schedule where id=#{value}
+</select>
+<select id="getGrade" parameterType="String" resultType="int">
+	select grade from users where id=#{value}
+</select>
+<select id="getInstructor" parameterType="String" resultType="int">
+	select inum from instructor where id=#{value}
+</select>
+<update id="update" parameterType="com.gym.app.dto.ScheduleUpdateDto">
+	update schedule set startdate=#{startdate},enddate=#{enddate} where iid=#{iid} and startdate=#{formerdate}
+</update>
+</mapper>

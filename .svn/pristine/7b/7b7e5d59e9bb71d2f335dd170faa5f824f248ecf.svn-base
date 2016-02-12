@@ -1,0 +1,16 @@
+create table userdiary(
+	d_num number(5) primary key,
+	id varchar2(30)  REFERENCES USERS(id),
+	exername varchar2(30),
+	d_date date,
+	diary clob,
+	startd number(20),
+	endd number(20),
+	d_title varchar2(50),
+	weight number(4)
+	
+);
+
+create sequence diary_seq;
+
+alter table userdiary add(weight number(4));

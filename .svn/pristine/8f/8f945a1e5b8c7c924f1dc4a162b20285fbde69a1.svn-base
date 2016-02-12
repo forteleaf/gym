@@ -1,0 +1,116 @@
+package com.gym.app.controller;
+
+import java.net.URLEncoder;
+import java.util.HashMap;
+import java.util.List;
+
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import com.gym.app.dto.FbcommDto;
+import com.gym.app.service.FbcommService;
+import com.gym.app.util.PageUtil;
+
+
+@Controller
+public class FbcommController {
+	@Autowired private FbcommService service;
+	@RequestMapping(value="/fboard/detail/fcinsert",method=RequestMethod.GET)
+	@ResponseBody
+	public String insert(int fcnum,int fbnum,String id,String comments,int fcref,int fclev,int fcstep){
+		FbcommDto dto=new FbcommDto(fcnum, fbnum, id, comments,fcref,fclev,fcstep,null);
+		int n=service.insert(dto);
+		StringBuffer sb=new StringBuffer();
+		sb.append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
+		sb.append("<result>");
+		if(n>0){
+			sb.append("<info>success</info>");
+		}else{
+			sb.append("<info>fail</info>");
+		}
+		sb.append("</result>");
+		return sb.toString();
+	}
+	@RequestMapping("/fboard/detail/fclist")
+	@ResponseBody
+	public String list(@RequestParam(value="pageNum",defaultValue="1")int pageNum,int fbnum,Model model) throws Exception{
+		int rowCount=service.getCount(fbnum);
+		System.out.println("pageNum:"+pageNum);
+		PageUtil pu=new PageUtil(pageNum, rowCount,10, 10);
+		HashMap<String , Integer> map=new HashMap<String, Integer>();
+		map.put("startRow", pu.getStartRow());
+		map.put("endRow", pu.getEndRow());
+		map.put("fbnum", fbnum);
+		List<FbcommDto> list=service.list(map);
+		
+		StringBuffer sb=new StringBuffer();
+		sb.append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
+		sb.append("<comm>");
+		for(FbcommDto dto:list){
+			sb.append("<comment>");
+			sb.append("<fcnum>" + dto.getFcnum() +"</fcnum>");
+			sb.append("<id>" + dto.getId() +"</id>");
+			System.out.println("iD:"+dto.getId());
+			String savefile=service.getPic(dto.getId());	
+			sb.append("<savefile>"+savefile+"</savefile>");
+			if(dto.getComments()!=null){
+				String comments=URLEncoder.encode(dto.getComments(),"utf-8");
+				comments=comments.replaceAll("\\+","%20");//공백이 있는경우 +바뀐것을 다시 공백으로 바꾸기
+				sb.append("<comments>" + comments +"</comments>");
+			}else{
+				sb.append("<comments>" + dto.getComments() +"</comments>");
+			}
+			sb.append("<startPage>"+pu.getStartPage()+ "</startPage>");
+			sb.append("<endPage>"+pu.getEndPage()+ "</endPage>");
+			sb.append("<pageNum>"+pu.getPageNum()+ "</pageNum>");
+			sb.append("<pageCount>"+pu.getPageCount()+ "</pageCount>");
+			sb.append("<fcref>"+dto.getFcref()+ "</fcref>");
+			System.out.println("controller fcref:" +dto.getFcref());
+			sb.append("<fclev>"+dto.getFclev()+ "</fclev>");
+			sb.append("<fcstep>"+dto.getFcstep()+ "</fcstep>");
+			sb.append("<regdate>"+dto.getRegdate()+ "</regdate>");
+			sb.append("</comment>");
+		}		
+		sb.append("</comm>");
+		
+		return sb.toString();
+	}
+	@RequestMapping("/fboard/detail/fcdelete")
+	@ResponseBody
+	public String delete(int fcnum){
+		int n=service.delete(fcnum);
+		StringBuffer sb=new StringBuffer();
+		sb.append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
+		sb.append("<result>");
+		if(n>0){
+			sb.append("<info>success</info>");
+		}else{
+			sb.append("<info>fail</info>");
+		}
+		sb.append("</result>");
+		return sb.toString();
+	}
+	@RequestMapping(value="/fboard/detail/fcupdate",method=RequestMethod.GET)
+	@ResponseBody
+	public String update(int fcnum,String comments){
+		FbcommDto dto=new FbcommDto(fcnum, 0, null, comments, 0, 0, 0, null);
+		int n=service.update(dto);
+		StringBuffer sb=new StringBuffer();
+		sb.append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
+		sb.append("<result>");
+		if(n>0){
+			sb.append("<info>success</info>");
+		}else{
+			sb.append("<info>fail</info>");
+		}
+		sb.append("</result>");
+		return sb.toString();
+	}
+}

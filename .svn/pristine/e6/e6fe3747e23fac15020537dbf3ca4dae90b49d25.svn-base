@@ -1,0 +1,588 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+	pageEncoding="UTF-8"%>
+<%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+
+<style>
+  .modal-header, h4, .close {
+      background-color: #5cb85c;
+      color:white !important;
+      text-align: center;
+      font-size: 30px;
+  }
+  .modal-footer {
+      background-color: #f9f9f9;
+  }
+  
+  /* 돌아가는 아이콘 */
+  .glyphicon-refresh-animate {
+    -animation: spin .9s infinite linear;
+    -webkit-animation: spin2 .9s infinite linear;
+  }
+  @-webkit-keyframes spin2 {
+    from { -webkit-transform: rotate(0deg);}
+    to { -webkit-transform: rotate(360deg);}
+  }
+
+  @keyframes spin {
+    from { transform: scale(1) rotate(0deg);}
+    to { transform: scale(1) rotate(360deg);}
+
+	.menu-hover:hover {
+	    width: 100px;
+	    height: 10px;
+	    background: red;
+	    position: relative;
+	    -webkit-animation: mymove 1.5s infinite; /* Chrome, Safari, Opera */
+	    animation: mymove 1.5s infinite;
+	}
+	
+	/* Chrome, Safari, Opera */
+	@-webkit-keyframes mymove {
+	    from {width: 0px;}
+	    to {width: 200px;}
+	}
+	
+	@keyframes mymove {
+	    from {width: 0px;}
+	    to {width: 200px;}
+}
+  }
+</style>
+
+<script>
+$(function(){
+	// 생일 입력
+	$('#birth').datepicker({
+    	format: "yyyy-mm-dd"
+    });  
+
+	// 로그인
+    $("#login").click(function(){
+        $("#myLoginForm").modal();
+    });
+	
+	// 가입하기
+    $("#signUp").click(function(){
+    	$("#myLoginForm").modal('hide');
+        $("#mySignUpForm").modal();
+    });
+    $("#loginSignup").click(function(){
+    	$
+    	$("#mySignUpForm").modal();
+    })
+	
+	// 메뉴 클릭시 havor
+    $('.menu li').click(function(e) {
+    	$('.nav li').removeClass('active');
+    	$(this).addClass('active');
+   	});
+    
+    // 회원 비밀번호 찾기 폼
+    $("#findMyPassword").click(function(){
+    	$("#myLoginForm").modal("hide");
+    	$("#findMyPasswordModal").modal();
+    });
+    
+    // 회원찾기 form submit
+	$("#findMyPasswordForm").submit(function(event){
+		event.preventDefault();
+ 		$.ajax({
+			  type: "POST",
+			  url: "/user/findpassword",
+			  data: $("#findMyPasswordForm").serialize(),
+			  beforeSend:function(){
+			        $( "#findMyPasswordModal .modal-body" ).isLoading({
+			            text:       "메일을 보내는 중 ... ",
+			            position:   "overlay",
+			            tpl: "<span class=\"btn btn-warning\" style=\"vertical-align:middle\" >%text%<i class=\"glyphicon glyphicon-refresh glyphicon-refresh-animate\"></i></span>"
+				    });
+			 		setTimeout(function(){
+			 			$( "#findMyPasswordModal .modal-body" ).isLoading("hide");
+			 		},4000);
+			  },
+			  success:function(data){
+				  if(data == "success"){
+					$("#findMyPasswordModal").modal("hide");
+					$("#findMyPasswordSuccess").modal();
+				  }else{
+					$("#findMyPasswordModal .modal-body" ).isLoading("hide");
+					$("#findMyPasswordModal").modal("hide");
+					$("#findMyPassworFail").modal();
+				  }
+			  }
+		});
+	});    
+    
+});
+</script>
+<!-- 에러보내기  -->
+<div id="findMyPasswordSuccess" class="modal fade" role="dialog">
+  <div class="modal-dialog">
+    <div class="modal-content alert alert-success">
+		  <strong>성공!</strong> 메일로 패스워드가 전송되었습니다.
+    </div>
+  </div>
+</div>
+<div id="findMyPassworFail" class="modal fade" role="dialog">
+  <div class="modal-dialog">
+    <div class="modal-content alert alert-danger">
+		  <strong>실패!!</strong> 아이디, 이름, 이메일이 틀렸습니다.
+    </div>
+  </div>
+</div>
+
+<nav class="navbar navbar-default">
+  <div class="container-fluid">
+    <div>
+      <ul class="menu nav navbar-nav">
+      	<li><a class="navbar-brand" href="#"><span class="glyphicon glyphicon-off"></span></a></li>
+        <li><a href="#">Home</a></li>
+        <li><a href="/">홈으로</a></li>
+        <li><a href="/notice/nlist">공지게시판</a></li>
+        <li><a href="/qna/plist">한상일 게시판</a></li>
+        <li><a href="/locker/main">손상준 락커</a></li>
+        <li><a href="/exer/allexerlist">운동정보 데헷</a></li>
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+      	<!-- 비로그인 -->
+      	<c:choose>
+      	  <c:when test="${empty id }">
+      	    
+	        <!--
+	        일반적인 페이지 이동 로그인
+	        <li><a href="/user/signup"><span class="glyphicon glyphicon-user"></span> Sign Up</a></li>
+	        <li><a href="/user/login"><span class="glyphicon glyphicon-log-in"></span> Login</a></li>
+	        -->
+	        <li><a id="signUp"><span class="glyphicon glyphicon-user"></span> Sign Up</a></li>
+	        <li><a id="login"><span class="glyphicon glyphicon-log-in"></span> Login</a></li>
+	        
+<!-- 회원가입 폼을 위한 script -->
+<script type="text/javascript">
+	var idch = false;
+	var regex = /^([a-zA-Z0-9\s_\\.\-:])+(.jpg|.jpeg|.gif|.png|.bmp)$/;
+	function checkOk($target){
+		$target.next().remove();
+		$target.after("<span class=\"glyphicon glyphicon-ok form-control-feedback\"></span>").parent().attr("class","form-group has-success has-feedback");
+	}
+	function checkErr($target){
+		$target.next().remove();
+		$target.after("<span class=\"glyphicon glyphicon-remove form-control-feedback\"></span>").parent().attr("class","form-group has-error has-feedback");
+	}
+	
+	$(document).ready(function() {
+		// 중복 체크 btn
+		$("#idcheck").click(function() {
+			var id = $("#iid").val();
+			if (id.length <= 0) {
+				$('#errorMsgComm').html("<strong> Warning!! </strong> 아이디를 입력하세요");
+				$('#errorMsg').collapse("show");
+				//alert("ID를 입력하시오.");
+				checkErr($('#iid'));
+				return;
+			}
+			$.getJSON('/user/idcheck/' + id, function(data) {
+				if (data.result == 'clear') {
+					$('#errorMsgComm').html("<strong> Warning </strong> 사용가능한 아이디 입니다");
+					$('#errorMsg').collapse("show");
+					//$("#idmsg").html(data.id + "는 사용가능한 ID입니다.");
+					checkOk($('#iid'));
+					idch = true;
+				} else {
+					$('#errorMsgComm').html("<strong> Warning </strong> 이미 존재하는 아이디 입니다.");
+					$('#errorMsg').collapse("show");
+					checkErr($('#iid'));
+
+					//$("#idmsg").html(data.id + "는 이미 존재하는 ID입니다.");
+				}
+			});
+		});
+		
+		$("#ipwd").focusout(function() {
+			var pwd = $("#ipwd").val();
+			if (pwd.length <= 0) {
+				$('#errorMsgComm').html("<strong> Warning </strong> 비밀번호를 입력 해 주세요.");
+				$('#errorMsg').collapse("show");
+				//$("#pwdmsg").html("비밀번호를 입력하시오.");
+				checkErr($('#ipwd'));
+			} else {
+				$('#errorMsg').collapse("hide");
+				//$("#pwdmsg").html("");
+			}
+		})
+		$("#pwdch").focusout(function() {
+			var pwd = $("#ipwd").val();
+			var pwdch = $("#pwdch").val();
+			if (pwd != pwdch) {
+				$('#errorMsgComm').html("<strong> Warning </strong> 비밀번호가 일치하지 않습니다.");
+				$('#errorMsg').collapse("show");
+				checkErr($('#ipwd'));
+				checkErr($('#pwdch'));
+				//$("#pwdchmsg").html("비밀번호가 일치하지 않습니다");
+			} else {
+				if($('#ipwd').val().length <= 0){
+					$('#errorMsgComm').html("<strong> Warning </strong> 비밀번호를 입력 해 주세요.");
+					$('#errorMsg').collapse("show");
+					checkErr($('#ipwd'));
+					return;
+				}
+				$('#errorMsg').collapse("hide");
+				checkOk($('#ipwd'));
+				checkOk($('#pwdch'));
+				//$("#pwdchmsg").html("비밀번호가 일치합니다");
+			}
+		});
+		$("#signUpForm").submit(function(event) {
+			if (idch == false) {
+				//alert("아이디 중복체크를 해주십시오.");
+				$('#errorMsgComm').html("<strong> Warning!! </strong> 아이디 중복체크를 해주세요.");
+				$('#errorMsg').collapse("show");
+				event.preventDefault();
+
+			} else if ($("#iid").val().length <= 0) {
+				$('#errorMsgComm').html("<strong> Warning!! </strong> 아이디를 입력해 주세요.");
+				$('#errorMsg').collapse("show");
+				checkErr($('#iid'));
+				//alert("아이디를 입력하시오.");
+				event.preventDefault();
+			} else if ($("#ipwd").val().length <= 0) {
+				$('#errorMsgComm').html("<strong> Warning!! </strong> 비밀번호를 입력 해 주세요.");
+				$('#errorMsg').collapse("show");
+				checkErr($('#ipwd'));
+				//alert("비밀번호를 입력하시오.");
+				event.preventDefault();
+			} else if ($("#ipwd").val() != $("#pwdch").val()) {
+				$('#errorMsgComm').html("<strong> Warning </strong> 비밀번호가 일치하지 않습니다.");
+				$('#errorMsg').collapse("show");
+				checkErr($('#pwdch'));
+				checkErr($('#ipwd'));
+				//alert("비밀번호가 일치하지 않습니다.");
+				event.preventDefault();
+			} else if ($("#uname").val().length <= 0) {
+				$('#errorMsgComm').html("<strong> Warning!! </strong> 이름을 입력하세요.");
+				$('#errorMsg').collapse("show");
+				checkErr($('#uname'));
+				//alert("이름를 입력하시오.");
+				event.preventDefault();
+			} else if ($("#phone").val().length <= 0) {
+				$('#errorMsgComm').html("<strong> Warning </strong> 전화번호를 입력해 주세요");
+				$('#errorMsg').collapse("show");
+				checkErr($('#phone'));
+				//alert("전화번호를 입력하시오.");
+				event.preventDefault();
+			} else if ($("#email").val().length <= 0) {
+				$('#errorMsgComm').html("<strong> Warning </strong> 이메일을 입력해 주세요.");
+				$('#errorMsg').collapse("show");
+				checkErr($('#email'));
+				//alert("이메일을 입력하시오.");
+				event.preventDefault();
+			} else {
+				$("form").submit();
+			}
+		});
+
+		$(function() {
+			$("#file1").change(function() {
+				if (typeof (FileReader) != "undefined") {
+					var dvPreview = $("#dvPreview");
+					dvPreview.html("");
+					$($(this)[0].files).each(function() {
+						var file = $(this);
+						if (regex.test(file[0].name.toLowerCase())) {
+							var reader = new FileReader();
+							reader.onload = function(e) {
+								var img = $("<img />");
+								img.attr("style", "height:150px;width: 150px");
+								img.attr("src", e.target.result);
+								img.attr("margin","auto");
+								$('#dvPreview1').collapse('show');
+								dvPreview.append(img);
+							}
+							reader.readAsDataURL(file[0]);
+						} else {
+							alert(file[0].name + "은 이미지파일이 아닙니다.");
+							$("#file1").val("");
+							$('#dvPreview1').collapse('hide');
+							dvPreview.html("");
+							return false;
+						}
+					});
+				} else {
+					alert("이 브라우져는 HTML5를 지원하지 않습니다.");
+				}
+			});
+		});
+	});
+</script>
+  <!-- 패스워드 찾기 폼 -->
+  <div class="modal fade" id="findMyPasswordModal" role="dialog">
+    <div class="modal-dialog modal-dm">
+      <div class="modal-content">
+        <div class="modal-header" style="padding:35px 50px;background:#c12e2a;">
+          <h2><span class="glyphicon glyphicon-lock"></span> 비밀번호 찾기</h2>
+        </div>
+        <div class="modal-body" style="padding:40px 50px;">
+          <form role="form" method="post" id="findMyPasswordForm">
+            <div class="form-group">
+              <label for="findId"><span class="glyphicon glyphicon-user"></span> 아이디</label>
+              <input type="text" class="form-control" id="findId" name="findId" placeholder="Enter id">
+            </div>
+            <div class="form-group">
+              <label for="findName"><span class="glyphicon glyphicon-eye-open"></span> 이름</label>
+              <input type="text" class="form-control" id="findName" name="findName"placeholder="Enter name">
+            </div>
+            <div class="form-group">
+              <label for="findEmail"><span class="glyphicon glyphicon-eye-open"></span> 이메일</label>
+              <input type="email" class="form-control" id="findEmail" name="findEmail"placeholder="Enter Email">
+            </div>
+              <button type="submit" class="btn btn-danger btn-block"><span class="glyphicon glyphicon-off"></span> Find Password</button>
+          </form>
+        </div>
+        <!-- 취소 버튼 -->
+        <div class="modal-footer">
+          <button type="submit" class="btn btn-danger btn-default pull-left" data-dismiss="modal"><span class="glyphicon glyphicon-remove"></span> 취소</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- 로그인하기 폼 -->
+  <div class="modal fade" id="myLoginForm" role="dialog">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header" style="padding:35px 50px;">
+          <button type="button" class="close" data-dismiss="modal">&times;</button>
+          <h4><span class="glyphicon glyphicon-lock"></span> Login</h4>
+        </div>
+        <!-- form -->
+        <div class="modal-body" style="padding:40px 50px;">
+          <form role="form" method="post" action="/user/login">
+            <div class="form-group">
+              <label for="id"><span class="glyphicon glyphicon-user"></span> 아이디</label>
+              <input type="text" class="form-control" id="id" name="id" placeholder="Enter id">
+            </div>
+            <div class="form-group">
+              <label for="pwd"><span class="glyphicon glyphicon-eye-open"></span> 비밀번호</label>
+              <input type="password" class="form-control" id="pwd" name="pwd"placeholder="Enter password">
+            </div>
+              <button type="submit" class="btn btn-success btn-block"><span class="glyphicon glyphicon-off"></span> Login</button>
+          </form>
+        </div>
+        <!-- 취소 버튼 -->
+        <div class="modal-footer">
+          <button type="submit" class="btn btn-danger btn-default pull-left" data-dismiss="modal"><span class="glyphicon glyphicon-remove"></span> 취소</button>
+          <p>아직 회원이 아닌가요? <a href="#" id="loginSignup">가입하기</a></p>
+          <p>비밀번호 <a href="#" id="findMyPassword">찾기</a></p>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- 회원가입 Form -->
+  <div class="modal fade" id="mySignUpForm" role="dialog">
+  
+    <div class="modal-dialog">
+      <div class="modal-content">
+      <link rel="stylesheet" href="/resources/css/bootstrap-datepicker.min.css">
+        <div class="modal-header" style="padding:35px 50px;">
+          <button type="button" class="close" data-dismiss="modal">&times;</button>
+          <h4><span class="glyphicon glyphicon-user"></span>가입하기</h4>
+        </div>
+        <div id="errorMsg" class="collapse">
+            <div class="alert alert-warning">
+              <span id="errorMsgComm"></span>
+ 			</div>
+		</div>
+        <div class="modal-body" style="padding:40px 50px;">
+          <form role="form" method="post" action="/user/signup" enctype="multipart/form-data" id="signUpForm">
+          <!-- 가입폼 시작 -->
+			<div class="row">
+				<div class="col-md-9">
+					<div class="form-group ">
+						<label for="id">아이디 : </label> <input type="text" id="iid" name="id" class="form-control" placeholder="Enter ID">
+					</div>
+				</div>
+				<div class="col-md-3">
+					<div class="form-group">
+						<label for="id">중복체크</label> <input type="button" value="중복체크" id="idcheck" class="form-control btn btn-primary">
+					</div>
+				</div>
+			</div>
+			<div class="row">
+			  <div class="col-xd-6 col-sm-6 col-md-6">
+				<div class="form-group">
+					<span class="glyphicon glyphicon-eye-open"></span><label for="pwd">비밀번호 : </label><input type="password" id="ipwd" name="pwd" class="form-control"
+						placeholder="Enter Password"><br>
+				</div>
+			  </div>
+			  <div class="col-xs-6 col-sm-6 col-md-6">
+				<div class="form-group">
+					<label for="pwdch">비밀번호확인 : </label><input type="password" id="pwdch" class="form-control" placeholder="Enter Passwrod"><br>
+				</div>
+			  </div>
+			</div>
+            <div class="form-group">
+				<label for="uname">이름 : </label>
+				 <input type="text" id="uname" name="uname" class="form-control"
+					placeholder="Enter Name">
+			</div>
+			<div class="form-group">
+				<span class="glyphicon glyphicon-phone"></span><label for="email">전화번호 : </label>
+				<input type="text" id="phone" name="phone" class="form-control"
+					placeholder="Enter PhoneNumber">
+			</div>
+			<div class="form-group">
+				<span class="glyphicon glyphicon-envelope"></span><label for="email">이메일 : </label>
+				<input type="email" id="email" name="email" class="form-control"
+					placeholder="Enter Email">
+			</div>
+			<div class="form-group">
+				<label for="addr">주소 : </label>
+				<input type="text" id="addr" name="addr" class="form-control" placeholder="Enter Address">
+			</div>
+			<div class="form-group">
+				<label for="birth">생년월일 : </label>
+				<input type="date" id="birth" name="birth" class="form-control" data-date-split-input="true" >
+			</div>
+			<div class="form-group">
+				<label >성별 : </label>
+				    <label class="radio-inline">
+ 					   <input type="radio" name="sex" class="optradio" value="1" checked > 남자
+  					 </label>
+				     <label class="radio-inline">
+				       <input type="radio" name="sex" class="optradio" value="2"> 여자
+				     </label>
+			</div>
+			<div class="collapse" id="dvPreview1">
+				<div id="dvPreview" class="img-thumbnail"></div>
+			</div>
+			<div class="form-group">
+				<span class="glyphicon glyphicon-picture"></span><label>사진</label>
+				<input type="file" name="file1" id="file1" multiple="multiple" class="file">
+			</div>
+            <!--
+            <div class="form-group">
+              <label for="id"><span class="glyphicon glyphicon-user"></span> 아이디</label>
+              <input type="text" class="form-control" id="id" name="id" placeholder="Enter id">
+            </div>
+            <div class="form-group">
+              <label for="pwd"><span class="glyphicon glyphicon-eye-open"></span> 비밀번호</label>
+              <input type="text" class="form-control" id="pwd" name="pwd"placeholder="Enter password">
+            </div>
+            -->
+            
+            <button type="submit" class="btn btn-success btn-block"><span class="glyphicon glyphicon-off"></span> 가입하기</button>
+          <!-- 개입폼 끝 -->
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button type="submit" class="btn btn-danger btn-default pull-left" data-dismiss="modal"><span class="glyphicon glyphicon-remove"></span> 취소</button>
+        </div>
+      </div>
+    </div>
+  </div>
+ 
+</c:when>
+      	  <c:otherwise>
+      	  	<c:choose>
+      	  		<c:when test="${grade==1 }">
+      	   			<li><span></span>${id } 관리자님 환영합니다</li>
+      	   			<li><!-- 전체관리페이지 -->
+			      	  	<a href="/user/alluserlist">
+			         		<span class="glyphicon glyphicon-log-out"></span> 전체관리페이지
+			        	</a>
+			      	</li>
+      	   	  	</c:when>
+      	  		<c:when test="${grade==2 }">
+      	  	   	  	<li><span>${id } 사원님 환영합니다</span></li>
+      	  	   	  	<li><!-- 회원관리페이지 -->
+			      	  	<a href="/user/userlist">
+			         		<span class="glyphicon glyphicon-log-out"></span> 회원관리페이지
+			        	</a>
+			      	</li>
+      	  	  	</c:when>
+      	  		<c:otherwise>
+      	  			<li><span>${id } 회원님 환영합니다</span></li>
+      	  		</c:otherwise>
+      	  	</c:choose>
+      	  	
+      	  	<!-- 받은 메세지 숫자 -->
+      	  	 <%
+      	      String id = (String) session.getAttribute("id");
+      	    %>
+      	  	<script>
+      	  	  $(document).ready(function(){
+      	  		  $.ajax({
+      	  			  url:"/msg/countmsg/"+"<%=id%>",
+      	  			  dataType:"text",
+      	  			  success:function(text){
+      	  				  //console.log(text); // msg 갯수
+      	  				  $("#msgcnt").html(text);
+      	  			  }
+      	  		  });
+      	  	  });
+      	  	</script>
+
+      	  	<!-- 마이페이지 -->
+      	  	<li class="dropdown">
+      	  	    <a class="dropdown-toggle" id="headermenu" data-toggle="dropdown"><span class="glyphicon glyphicon-list"></span>메뉴 <span class="caret"></span></a>
+			    <ul class="dropdown-menu" role="menu" aria-labelledby="headermenu">
+			   	  	<li>
+		      	  	  <a href="/msg/userlist/${id }">
+		          		<span class="glyphicon glyphicon-envelope">메세지 </span><span class="badge badge-important"><span id="msgcnt">0</span></span>
+	        		  </a>
+	      		  	</li>
+		      	  	<li>
+			      	  	<a href="/user/mypage?id=${id }">
+			          		<span class="glyphicon glyphicon-log-out"></span> MyPage
+			          	</a>
+		      	  	</li>
+		      	  	<li>
+			      	  	<a href="/schedule/schedule">
+			          		<span class="glyphicon glyphicon-calendar"></span> 스케쥴
+			          	</a>
+		      	  	</li>
+		      	  	<li class="divider"></li>
+		      	  	<li class="dropdown-header">사용자 메뉴</li>
+		      	  	<li>
+			      	  	<a href="/user/logout">
+			          		<span class="glyphicon glyphicon-log-out"></span> Log out
+			          	</a>
+		      	  	</li>
+	      	  	</ul>
+      	  	</li>
+      	  	
+      	  </c:otherwise>
+      	</c:choose>
+      	</ul>
+      	  </div>
+      	  
+    </div>
+
+</nav>
+<c:if test="${grade == 1 }">
+<nav class="navbar navbar-inverse">
+  <div class="container-fluid">
+      <a class="navbar-brand" href="#"> 관리 </a>
+      <ul class="nav navbar-nav">
+        <li class="dropdown">
+          <a class="dropdown-toggle" data-toggle="dropdown" href="#">직원관리 <span class="caret"></span></a>
+          <ul class="dropdown-menu">
+            <li><a href="#"></a></li>
+            <li><a href="/user/userlist">직원목록</a></li>
+            <li><a href="#">회원목록</a></li>
+            <li><a href="#">전체목록</a></li>
+          </ul>
+        </li>
+        <li class="dropdown">
+          <a class="dropdown-toggle" data-toggle="dropdown" href="#">통계 <span class="caret"></span></a>
+          <ul class="dropdown-menu">
+            <li><a href="#">회원 관련</a></li>
+            <li><a href="#">운동 관련</a></li>
+            <li><a href="#">회계 관련</a></li>
+          </ul>
+        </li>
+      </ul>
+    </div>
+</nav>
+</c:if>
+

@@ -1,0 +1,55 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+<%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
+<style>
+.container {
+color: white;
+}
+.bg-info {
+    background: rgba(100, 100, 0, 0.5) none repeat scroll 0% 0%;
+    text-align: left;
+}
+div > .well p{
+	color:white;
+}
+.row > div {
+	color:#000;
+}
+</style>
+k, 
+<div class="container">
+  <h1>이용안내</h1>      
+</div>
+<div class="well well-md bg-info">
+<h1 class="text-primary"><span class="glyphicon glyphicon-time"></span>운영시간</h1>
+<p>평일 : 06:00 ~ 21:00 / 토요일 09:00 ~ 17:00</p><br>
+<h1 class="text-primary"><span class="glyphicon glyphicon-calendar"></span>회원 접수 기간 및 접수방법</h1>
+<p>수시접수 / 시간 ( 평일 : 07:00 ~ 20:00 / 토요일 09:00 ~ 16:00 )</p>
+<p>이용당일 방문 접수</p><br>
+<p>회원등록&lt;방문접수&gt; : 상담/문의 → 회원가입신청 → 회원카드 및 영수증 발급 → 회원가입완료</p>
+<p>환불 및 연기 : 연기/환불 신청서 작성 → 접수창구제출 → 잔여기간확인 및 환불규정 확인 → 환불담당자 일별 최종접수 → 결재 → 개인계좌 환불(신청인)</p>
+
+<hr>
+<div class="row">
+  <div class="col-md-5 col-md-offset-7" >
+	<div class="panel panel-default info-panel">
+	<div class="panel-body">
+	<img src="/resources/img/brokenpipe.png" width="150">
+	<br>
+	<small>
+	주소 :  서울특별시 종로구 봉익동 9-11 띠아망<br>
+	연락처 : 1588-0000<br>
+	SNS : 
+	<a class="btn btn-primary btn-xs" href="http://twitter.com" target="_blank"><i class="fa fa-twitter fa-lg"></i> Twitter</a>
+	<a class="btn btn-primary btn-xs" href="http://facebook.com" target="_blank"><i class="fa fa-facebook fa-lg"></i> Facebook</a>
+	<a class="btn btn-primary btn-xs" href="http://tumblr.com" target="_blank"><i class="fa fa-tumblr fa-lg"></i> Tumblr</a>
+	<a class="btn btn-primary btn-xs" href="http://instagram.com" target="_blank"><i class="fa fa-instagram fa-lg"></i> Instagram</a>
+	<br><br>
+	망설이지 마세요!!Broken Pipe은 항상 여러분을 기다립니다.!
+	</small>
+	</div>
+	</div>
+  </div>
+
+</div>
+</div>

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="gym.user.InsUserMapper">
+	<select id="getinfo" resultType="com.gym.app.dto.InsUserDto">
+	select u.unum,u.uname,u.id,u.email,u.sex,u.addr,u.phone,i.work,i.sal,
+	u.grade,u.savefile,i.ijoin,i.info from users u inner join instructor i
+	on u.id=i.id
+	</select>
+</mapper>

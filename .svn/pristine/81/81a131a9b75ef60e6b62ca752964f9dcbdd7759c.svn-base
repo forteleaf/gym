@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="gym.user.InstructorMapper">
+	<insert id="iinsert" parameterType="com.gym.app.dto.InstructorDto">
+		insert into instructor 
+        values(instructor_seq.nextval,#{id},sysdate,1,#{sal},#{info})
+	</insert>
+	<select id="ilist" resultType="com.gym.app.dto.InstructorDto">
+		select * from instructor order by inum desc
+	</select>
+	<select id="seltrain" parameterType="String" resultType="com.gym.app.dto.InstructorDto">
+		select * from instructor where id=#{value}
+	</select>
+	
+	<update id="update" parameterType="com.gym.app.dto.InstructorDto">
+		update instructor set sal=#{sal} where id=#{id}
+	</update>
+	
+	<update id="deltrain" parameterType="hashmap">
+		update instructor set work=#{work} where id=#{id}
+	</update>
+	<update id="reinsert" parameterType="com.gym.app.dto.InstructorDto">
+		update instructor set work=1,ijoin=sysdate,sal=#{sal} where id=#{id}
+	</update>
+	<select id="idetail" parameterType="int" resultType="com.gym.app.dto.InstructorDto">
+		select * from instructor where inum=#{value}
+	</select>
+	<update id="iupdate" parameterType="com.gym.app.dto.InstructorDto">
+		update instructor 
+		set id=#{id},work=#{work},sal=#{sal},info=#{info}
+		where inum=#{inum}
+	</update>
+	<delete id="idelete" parameterType="int">
+		delete from instructor where inum=#{value}
+	</delete>
+	<update id="infoupdate" parameterType="hashmap">
+		update instructor set info=#{info} where id=#{id}
+	</update>
+</mapper>

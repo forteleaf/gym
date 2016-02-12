@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="gym.user.FboardMapper">
+<!-- user 관련 데이터 베이스 저장 할 곳 -->
+  	<insert id="insert" parameterType="com.gym.app.dto.FboardDto">
+  		insert into fboard values(fb_seq.nextval,#{id},#{title},#{content},0,sysdate)
+	</insert>
+	<select id="getCount" resultType="int" parameterType="hashmap">
+		select count(*) cnt from fboard
+		<where>
+			<choose>
+				<when test="sch_type=='title'">
+				and title like concat(concat('%',#{sch_value}),'%')
+				</when>
+				<when test="sch_type=='content'">
+				and content like concat(concat('%',#{sch_value}),'%')
+				</when>
+				<when test="sch_type=='id'">
+				and id like concat(concat('%',#{sch_value}),'%')
+				</when>
+			</choose>
+		</where>
+	</select>
+	<select id="plist" parameterType="hashmap" resultType="com.gym.app.dto.FboardDto">
+		select * from (select aa.*,rownum rnum from
+		(select * from fboard 
+		<where>
+			<choose>
+				<when test="sch_type=='title'">
+				and title like concat(concat('%',#{sch_value}),'%')
+				</when>
+				<when test="sch_type=='content'">
+				and content like concat(concat('%',#{sch_value}),'%')
+				</when>
+				<when test="sch_type=='id'">
+				and id like concat(concat('%',#{sch_value}),'%')
+				</when>
+			</choose>
+		</where>
+		order by fbnum desc)aa )
+		<![CDATA[where rnum>=#{startRow} and rnum<=#{endRow}]]>
+	</select>
+	<select id="getInfo" parameterType="int" resultType="com.gym.app.dto.FboardDto">
+		select * from fboard where fbnum=#{value}
+	</select>
+	<update id="addHit" parameterType="int">
+		update fboard
+		set hit=hit+1
+		where fbnum=#{value}
+	</update>
+	<!-- 이전글 -->
+	<select id="prev" parameterType="int" resultType="com.gym.app.dto.FboardDto">
+		select * from
+ 		(select * from fboard
+  		<![CDATA[where fbnum<#{value} order by fbnum desc]]>
+  		)
+		where rownum=1
+	</select>
+	<!-- 다음글 -->
+	<select id="next" parameterType="int" resultType="com.gym.app.dto.FboardDto">
+		select * from
+ 		(select * from fboard
+  		<![CDATA[where fbnum>${value} order by fbnum asc]]>
+  		)
+		where rownum=1
+	</select>
+	<update id="update" parameterType="com.gym.app.dto.FboardDto">
+		update fboard set title=#{title},content=#{content} where fbnum=#{fbnum}
+	</update>
+	<delete id="delete" parameterType="int">
+		delete from fboard where fbnum=#{value}
+	</delete>
+	<select id="getPic" parameterType="String" resultType="String">
+		select savefile from users where id=#{value}
+	</select>
+</mapper>

@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="gym.user.UserMapper">
+	<!-- user 관련 데이터 베이스 저장 할 곳 -->
+	<insert id="insert" parameterType="com.gym.app.dto.UserDto">
+		insert into users values
+		(users_unum_seq.nextval,#{uname},#{id},#{pwd},#{email},
+		#{addr},#{sex},#{birth},sysdate,#{orgfile},#{savefile},#{filesize},#{grade},#{phone})
+	</insert>
+	<select id="idcheck" parameterType="String" resultType="com.gym.app.dto.UserDto">
+		select * from users where id=#{value} 
+	</select>
+	<select id="logincheck" parameterType="hashmap" resultType="com.gym.app.dto.UserDto">
+		select * from users where id=#{id} and pwd=#{pwd}
+	</select>
+	<update id="update1" parameterType="com.gym.app.dto.UserDto">
+		update users set
+		uname=#{uname},pwd=#{pwd},email=#{email},addr=#{addr},sex=#{sex},birth=#{birth},
+		phone=#{phone} where id=#{id}
+	</update>
+	<update id="update2" parameterType="com.gym.app.dto.UserDto">
+		update users set
+		uname=#{uname},pwd=#{pwd},email=#{email},addr=#{addr},sex=#{sex},birth=#{birth},
+		orgfile=#{orgfile},savefile=#{savefile},filesize=#{filesize},
+		phone=#{phone} where id=#{id}
+	</update>
+	
+	<update id="gradeup" parameterType="hashmap">
+		update users set grade=#{grade} where id=#{id}
+	</update>
+
+
+	<!-- 안드로이드 관련이에용 //////////////////////////// -->
+	
+		<!-- 안드로이드 로그인 -->
+	<select id="androidLogin" parameterType="hashmap" resultType="com.gym.app.dto.AndroidUserDto">
+		select * from users where id=#{id} and pwd=#{pwd}
+	</select>
+		<!-- 안드로이드 유저정보 -->
+	<select id="androidUserGetInfo" parameterType="String" resultType="com.gym.app.dto.AndroidUserDto">
+		select * from users where id=#{value}
+	</select>
+		<!-- 안드로이드 회원리스트 -->
+	<select id = "androidUserList" parameterType="String" resultType = "com.gym.app.dto.AndroidTrainDto">
+			select u.uname,u.phone,u.savefile,s.attendance from users u, schedule s where u.id = s.id and s.id in(select id from schedule where iid=#{value})
+	</select>
+		<!-- 안드로이드 출석체크 -->
+	<update id = "androidCheck" parameterType="hashmap">
+			update schedule set attendance=1 where id=#{id} and startdate=#{startdate}
+	</update>
+	 
+	<!-- ////////////////////////  여기까지는 안드로이드에용 -->
+
+	<select id="alluserlistjson" resultType="com.gym.app.dto.UserDto">
+	  select * from users
+	</select>
+	
+	<select id="alluserlist" resultType="com.gym.app.dto.UserDto" parameterType="hashmap">
+		select * from
+		 (
+		  select AA.*,ROWNUM RNUM from
+		  (
+			select * from users order by unum desc
+		  )AA
+		 )
+		 <![CDATA[where rnum>=#{startRow} and rnum<=#{endRow}]]>
+	</select>
+	<select id="selectuserlist" resultType="com.gym.app.dto.UserDto" parameterType="hashmap">
+		select * from
+		 (
+		  select AA.*,ROWNUM RNUM from
+		  (
+			select * from users where grade=#{grade} order by unum desc
+		  )AA
+		 )
+		 <![CDATA[where rnum>=#{startRow} and rnum<=#{endRow}]]>
+	</select>
+	<select id="getallcnt" resultType="int">
+		select count(*) cnt from users
+	</select>
+	<select id="getlistcnt" resultType="int" parameterType="int">
+		select count(*) cnt from users where grade=#{value}
+	</select>
+	<select id="finduser" resultType="com.gym.app.dto.UserDto" parameterType="hashmap">
+		select * from users where ${field} like '%'||#{keyword}||'%'
+	</select>
+	<select id="findcnt" resultType="int" parameterType="hashmap">
+		select count(*) cnt  from users where ${field} like '%'||#{keyword}||'%'
+	</select>
+	<select id="findnumuser" resultType="com.gym.app.dto.UserDto" parameterType="int">
+		select * from users where unum=#{value}
+	</select>
+	<!-- 이전회원 -->
+	<select id="findprevuser" resultType="com.gym.app.dto.UserDto" parameterType="int">
+		select * from(
+		 select * from users 
+		  	<![CDATA[where unum<#{value} order by unum desc]]> 
+		 )
+		where rownum=1
+	</select>
+	<!-- 다음회원 -->
+	<select id="findnextuser" resultType="com.gym.app.dto.UserDto" parameterType="int">
+		select * from(
+		 select * from users 
+		  <![CDATA[where unum>#{value} order by unum asc]]> 
+		 )
+		where rownum=1
+	</select>
+</mapper>

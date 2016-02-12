@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="gym.user.EpcommMapper">
+	<insert id="insert" parameterType="com.gym.app.dto.EpcommDto">
+		insert into epcomm 
+		values(#{ecnum},#{epnum},#{id},#{comments},#{ecref},#{eclev},#{ecstep},sysdate)
+	</insert>
+	<select id="list" resultType="com.gym.app.dto.EpcommDto" parameterType="hashmap">
+	select *from(select aa.*,rownum rnum from
+	(select * from(select * from epcomm where epnum=#{epnum}) order by ecref desc,ecstep asc )aa)
+		<![CDATA[where rnum>=#{startRow} and rnum<=#{endRow}]]>
+	</select>
+	<select id="find" resultType="com.gym.app.dto.EpcommDto" parameterType="com.gym.app.dto.EpcommDto">
+		select * from epcomm where ecnum=#{ecnum} and epnum=#{epnum}
+	</select>
+	<select id="getMaxNum" resultType="int">
+		select NVL(max(ecnum),0) from epcomm 
+	</select>
+	<select id="getCount" resultType="int" parameterType="int">
+		select count(*) cnt from epcomm where epnum=#{value}
+	</select>
+	<select id="getCount1" resultType="int">
+		select count(*) cnt from epcomm
+	</select>
+	<delete id="delete" parameterType="int">
+		delete from epcomm where ecnum=#{value}
+	</delete>
+	<update id="update" parameterType="com.gym.app.dto.EpcommDto">
+		update epcomm set comments=#{comments} where ecnum=#{ecnum}
+	</update>
+	<update id="update1" parameterType="com.gym.app.dto.EpcommDto">
+		update epcomm set ecstep=ecstep+1 where ecref=#{ecref} and ecstep>#{ecstep}
+	</update>
+	<select id="getPic" parameterType="String" resultType="String">
+		select savefile from users where id=#{value}
+	</select>
+</mapper>
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    

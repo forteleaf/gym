@@ -1,0 +1,143 @@
+package com.gym.app.controller;
+
+import java.util.Calendar;
+import java.util.List;
+
+import javax.servlet.http.HttpSession;
+
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import com.gym.app.dto.DiaryDto;
+import com.gym.app.dto.ExerDto;
+import com.gym.app.service.DiaryService;
+import com.gym.app.service.ExerService;
+
+@Controller
+public class DiaryController {
+	@Autowired private DiaryService service;
+	@Autowired private ExerService service2;
+
+	@RequestMapping(value="/diary/loaddiary", method=RequestMethod.GET)
+	public String loaddiary(HttpSession session,String id){
+		return ".diary.userdiary";
+	}
+	
+	@RequestMapping(value="/diary/selectid", method=RequestMethod.GET,
+			produces="application/json;charset=utf-8")
+	@ResponseBody
+	public String selectid(HttpSession session){
+		String id=(String)session.getAttribute("id");
+		List<DiaryDto> diary=service.selectid(id);
+		JSONArray arr=new JSONArray();
+		for(DiaryDto mm:diary){
+			JSONObject obj=new JSONObject();
+			obj.put("d_num", mm.getD_num());
+			obj.put("id", mm.getId());
+			obj.put("exername", mm.getExername());
+			obj.put("d_date", mm.getD_date().toString());
+			obj.put("diary", mm.getDiary());
+			obj.put("start", mm.getStartd());
+			obj.put("end", mm.getEndd());
+			obj.put("d_title", mm.getD_title());
+			obj.put("title", mm.getD_title());
+			//obj.put("color", "red");
+			
+			//obj.put("color",mm.getColor());
+			arr.add(obj);
+		}
+		return arr.toString();
+	}
+	@RequestMapping(value="/diary/insert", method=RequestMethod.GET)
+	@ResponseBody
+	public String insertD(
+			String id,String exername,String diary,
+			long startDate,long endDate,String d_title){
+		DiaryDto dto=new DiaryDto(0, id, exername, null, diary, startDate, endDate, d_title);
+		int n=service.insert(dto);
+		JSONObject obj=new JSONObject();
+		if(n>0){
+			obj.put("result", "success");
+		}else{
+			obj.put("result", "fali");
+		}
+		return obj.toString();
+	}
+	@RequestMapping(value="/diary/delete/{d_num}")
+	@ResponseBody
+	public String deldiary(@PathVariable("d_num")int d_num){
+		int n=service.delete(d_num);
+		JSONObject obj=new JSONObject();
+		if(n>0){
+			obj.put("result", "success");
+		}else{
+			obj.put("result", "fail");
+		}
+		return obj.toString();
+	}
+	@RequestMapping(value="/diary/update", method=RequestMethod.GET
+			,produces="application/json;charset=utf-8")
+	@ResponseBody
+	public String update(String ud_title,String udiary,String uexername,int ud_num){
+		DiaryDto dto=new DiaryDto(ud_num, null, uexername, null, udiary, 0, 0, ud_title);
+		JSONObject obj=new JSONObject();
+		int n=service.update(dto);
+		if(n>0){
+			obj.put("result", "success");
+		}else{
+			obj.put("result", "fail");
+		}
+		return obj.toString();
+	}
+	@RequestMapping(value="/diary/check/{start}" ,method=RequestMethod.GET
+			,produces="application/json;charset=utf-8")
+	@ResponseBody
+	public String checkdiary(@PathVariable("start")long start){
+		DiaryDto dto=service.check(start);
+		JSONObject obj=new JSONObject();
+		if(dto==null){
+			obj.put("check", "true");
+		}else{
+			obj.put("check", "false");
+		}
+		return obj.toString();
+	}
+	@RequestMapping(value="/diary/count/{id}" 
+			,produces="application/json;charset=utf-8")
+	@ResponseBody
+	public String count(@PathVariable("id")String id){
+		//System.out.println("id:" + id);
+		List<DiaryDto> list=service.count(id);
+		JSONArray arr=new JSONArray();
+		Calendar calendar = Calendar.getInstance();
+		for(int i=0;i<list.size();i++){
+			JSONObject obj=new JSONObject();
+			ExerDto exer=service2.getexer(list.get(i).getExername());
+			calendar.setTimeInMillis(list.get(i).getStartd());
+			int mYear = calendar.get(Calendar.YEAR);
+			int mMonth = calendar.get(Calendar.MONTH)+1;
+			int mDay = calendar.get(Calendar.DAY_OF_MONTH)+1;
+			String yy=Integer.toString(mYear);
+			String mm=Integer.toString(mMonth);
+			String dd=Integer.toString(mDay);
+			System.out.println("ssss" + exer.getCalorie());
+			
+			String exdate=yy + "³â" + mm + "¿ù" + dd + "ÀÏ";
+			System.out.println(exdate);
+			obj.put("date", exdate);
+			obj.put("calo", exer.getCalorie());
+			arr.add(obj);
+		}
+		return arr.toString();
+	}
+	@RequestMapping("/diary/userexer")
+	public String userexer(){
+		return ".diary.userexer";
+	}
+}	

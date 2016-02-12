@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="gym.user.MsgMapper">
+  <insert id="insert" parameterType="com.gym.app.dto.MsgDto">
+  	insert into msg values(msg_seq.nextval,#{id},#{recv_id},#{content},sysdate,'N')
+  </insert>
+  
+  <delete id="delete" parameterType="int">
+    delete msg where msgnum = #{value}
+  </delete>
+  
+  <!-- 메세지 읽어오기 -->
+  <select id="select" parameterType="string" resultType="com.gym.app.dto.MsgDto">
+    select * from where id = #{value}
+  </select>
+  
+  <!-- 전체 메세지 -->
+  <select id="list" resultType="com.gym.app.dto.MsgDto">
+    select * from msg
+  </select>
+  
+  <!-- recv_id 에게 전달된 메세지 받아오기 -->
+  <select id="userlist" parameterType="string" resultType="com.gym.app.dto.MsgDto">
+    select * from msg where recv_id= #{value} order by msgnum desc
+  </select>
+  
+  <!-- 읽지않는 메세지 갯수 -->
+  <select id="countmsg" parameterType="string" resultType="int">
+    select count(*) from msg where recv_id=#{value} and status='N'
+  </select>
+  
+  <!-- 읽은 메세지로 표시 -->
+  <update id="changeread" parameterType="string">
+    update msg set status='R' where msgnum=#{value}
+  </update>
+  
+  
+  
+</mapper>

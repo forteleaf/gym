@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="gym.user.DiaryMapper">
+	<!-- user 관련 데이터 베이스 저장 할 곳 -->
+	<insert id="insert" parameterType="com.gym.app.dto.DiaryDto">
+		insert into userdiary values(diary_seq.nextval,#{id},#{exername},sysdate,#{diary},#{startd},#{endd},#{d_title})
+	</insert>
+	<select id="select" resultType="com.gym.app.dto.DiaryDto">
+		select * from userdiary
+	</select>
+	<select id="selectid" resultType="com.gym.app.dto.DiaryDto" parameterType="String">
+		select * from userdiary where id=#{value}
+	</select>
+	<delete id="delete" parameterType="int">
+		delete userdiary where d_num=#{value}
+	</delete>
+	<update id="update" parameterType="com.gym.app.dto.DiaryDto">
+		update userdiary set exername=#{exername},diary=#{diary},d_title=#{d_title} where d_num=#{d_num} 		
+	</update>
+	<select id="check" parameterType="long" resultType="com.gym.app.dto.DiaryDto">
+		select * from userdiary where startd=#{value}
+	</select>
+	
+	<select id="counts" parameterType="String" resultType="com.gym.app.dto.DiaryDto">
+		select a.*,rownum from
+			(
+			select * from userdiary where id=#{value} order by startd desc
+			)a
+			<![CDATA[where rownum <7]]>
+	</select>
+	<!-- 
+	<select id="counts" parameterType="String" resultType="com.gym.app.dto.DiaryDto">
+		select * from userdiary where id=#{value} order by startd desc
+	</select>
+	 -->
+	
+	
+
+</mapper>

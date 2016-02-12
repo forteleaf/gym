@@ -1,0 +1,70 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+<%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+
+<link rel="stylesheet" type="text/css" href="/resources/css/jquery-ui.min.css">
+<script type="text/javascript" src="/resources/js/jquery-1.11.3.min.js"></script>
+<script type="text/javascript" src="/resources/js/jquery-ui.min.js"></script>
+<script type="text/javascript">
+	$(document).ready(function(){
+			$.ajax({
+				url:"/insuser",
+				dataType:"xml",
+				success:function(data){
+					$(data).find("insuser").each(function(){
+						var unum=$(this).find("unum").text();
+						var uname=$(this).find("uname").text();
+						var id=$(this).find("id").text();
+						var email=$(this).find("email").text();
+						var sex=$(this).find("sex").text();
+						var addr=$(this).find("addr").text();
+						var phone=$(this).find("phone").text();
+						var work=$(this).find("work").text();
+						var info=$(this).find("info").text();
+						var grade=$(this).find("grade").text();
+						var savefile=$(this).find("savefile").text();
+						if(sex==1){
+							sex="남성";
+						}else{
+							sex="여성";
+						}
+						if(work==1){
+							work="재직중";
+						}else{
+							work="미재직중";
+						}
+						var ss="<table class='alert alert-success' style='width: 800px;height: 700px;'align='center'>"
+								+"<div align='center'>"
+								+"<tr>"
+								+"<th colspan='2'>"
+								+"<div class='alert alert-success' style='padding:35px 50px;'>"
+								+"<h4 >"+ uname +" 트레이너</h4>"
+						        	+"</div>"
+								+"</th>"
+								+"</tr>"
+								+"<tr>"
+								+"<td  rowspan='6' align='center' width='220px'>"
+								+"<img src='/resources/userphoto/"+savefile+"' style='width:400px'><br>"
+								+"</td>"
+								
+								+"<td align='center'><h3>이름:"+ uname +"</h3></td>"
+								+"<tr>"
+								+"<th><h3>소개/약력</h3></th>"
+								+"</tr>"
+								+"<tr>"
+								+"<td rowspan='4'><p>"+ info +"</p></td></h3>"
+								+"</tr>"
+								+"</div>"
+								+"</table>";   
+						$("#ins").append("<div>"+ ss + "</div>");
+					});
+				}
+			});
+		});
+</script>
+<ul>
+		<li><a href="/instructor/iinsert">강사정보등록</a></li>
+		<li><a href="/instructor/ilist">강사목록 보기</a></li>
+</ul>
+<div id="ins"></div>
+	

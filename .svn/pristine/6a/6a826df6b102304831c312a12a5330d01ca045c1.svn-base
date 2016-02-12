@@ -1,0 +1,11 @@
+create table ifcomm
+(
+	icnum number(6) primary key,
+	ifnum number(6),
+	id varchar2(30) references users(id),
+	comments varchar2(150),
+	icref number(5),
+	iclev number(5),
+	icstep number(5),
+	regdate date
+);

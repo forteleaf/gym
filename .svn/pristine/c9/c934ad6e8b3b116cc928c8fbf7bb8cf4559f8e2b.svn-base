@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="gym.user.LockerMapper">
+	<insert id="linsert" parameterType="com.gym.app.dto.LockerDto">
+		insert into locker 
+		values(#{lnum},#{id},#{sex},#{rent},sysdate,sysdate)
+	</insert>
+	<select id="llist" resultType="com.gym.app.dto.LockerDto">
+		select * from locker 
+	</select>
+	<select id="ldetail" parameterType="int" resultType="com.gym.app.dto.LockerDto">
+		select * from locker where lnum=#{value}
+	</select>
+	<update id="lupdate" parameterType="com.gym.app.dto.LockerDto">
+		update locker
+		set id=#{id},sex=#{sex},rent=#{rent},
+		rentstart=to_date(#{rentstart},'YYYY/MM/DD'),rentend=to_date(#{rentend},'YYYY/MM/DD')
+		where lnum=#{lnum}
+	</update>
+	<delete id="ldelete" parameterType="int">
+		delete from locker where lnum=#{value}
+	</delete>
+</mapper>

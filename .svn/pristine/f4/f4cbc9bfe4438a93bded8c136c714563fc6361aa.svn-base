@@ -1,0 +1,54 @@
+package com.gym.app.dao;
+
+import java.util.HashMap;
+import java.util.List;
+
+import org.apache.ibatis.session.SqlSession;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Repository;
+
+import com.gym.app.dto.QnaDto;
+
+
+
+@Repository
+public class QnaDao {
+	@Autowired private SqlSession sqlSession;
+	private final String NS="gym.user.QnaMapper";
+	public int insert(QnaDto dto){
+		return sqlSession.insert(NS+".insert",dto);
+	}
+	public List<QnaDto> plist(HashMap<String, Object> map){
+		return sqlSession.selectList(NS+".plist", map);
+	}
+	public int getCount(HashMap<String, Object> map1){
+		return sqlSession.selectOne(NS+".getCount",map1);
+	}
+	public QnaDto getInfo(int qnanum){
+		return sqlSession.selectOne(NS+".getInfo", qnanum);
+	}
+	public QnaDto next(int qnanum){
+		return sqlSession.selectOne(NS+".next", qnanum);
+	}
+	public QnaDto prev(int qnanum){
+		return sqlSession.selectOne(NS+".prev", qnanum);
+	}
+	public int addHit(int qnanum) {
+		return sqlSession.update(NS+".addHit",qnanum);
+	}
+	public int delete(int qnanum) {
+		return sqlSession.delete(NS+".delete",qnanum);
+	}
+	public int update(QnaDto dto) {
+		return sqlSession.update(NS+".update",dto);
+	}
+	public List<QnaDto> alramQna() {
+		return sqlSession.selectList(NS+".alramqna");
+	}
+	public String getPic(String id){
+		return sqlSession.selectOne(NS+".getPic", id);
+	}
+	public List<QnaDto> jsonlist(int num) {
+		return sqlSession.selectList(NS+".jsonlist", num);
+	}
+}

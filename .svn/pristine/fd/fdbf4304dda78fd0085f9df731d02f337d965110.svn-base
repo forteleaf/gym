@@ -1,0 +1,119 @@
+package com.gym.app.controller;
+
+import java.net.URLEncoder;
+import java.util.HashMap;
+import java.util.List;
+
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+
+
+import com.gym.app.dto.QnacommDto;
+import com.gym.app.service.QnacommService;
+import com.gym.app.util.PageUtil;
+
+
+@Controller
+public class QnacommController {
+	@Autowired private QnacommService service;
+	@RequestMapping(value="/qna/detail/qcinsert",method=RequestMethod.GET)
+	@ResponseBody
+	public String insert(int qcnum,int qnanum,String id,String comments,int qcref,int qclev,int qcstep){
+		QnacommDto dto=new QnacommDto(qcnum, qnanum, id, comments,qcref,qclev,qcstep,null);
+		int n=service.insert(dto);
+		StringBuffer sb=new StringBuffer();
+		sb.append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
+		sb.append("<result>");
+		if(n>0){
+			sb.append("<info>success</info>");
+		}else{
+			sb.append("<info>fail</info>");
+		}
+		sb.append("</result>");
+		return sb.toString();
+	}
+	@RequestMapping("/qna/detail/qclist")
+	@ResponseBody
+	public String list(@RequestParam(value="pageNum",defaultValue="1")int pageNum,int qnanum,String sid,Model model) throws Exception{
+		int rowCount=service.getCount(qnanum);
+		System.out.println("pageNum:"+pageNum);
+		PageUtil pu=new PageUtil(pageNum, rowCount,10, 10);
+		HashMap<String , Integer> map=new HashMap<String, Integer>();
+		map.put("startRow", pu.getStartRow());
+		map.put("endRow", pu.getEndRow());
+		map.put("qnanum", qnanum);
+		List<QnacommDto> list=service.list(map);
+		
+		StringBuffer sb=new StringBuffer();
+		sb.append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
+		sb.append("<comm>");
+		for(QnacommDto dto:list){
+			sb.append("<comment>");
+			sb.append("<qcnum>" + dto.getQcnum() +"</qcnum>");
+			sb.append("<id>" + dto.getId() +"</id>");
+			String savefile=service.getPic(dto.getId());
+			String savefile1=service.getPic(sid);
+			sb.append("<savefile>"+savefile+"</savefile>");
+			sb.append("<savefile1>"+savefile1+"</savefile1>");
+			if(dto.getComments()!=null){
+				String comments=URLEncoder.encode(dto.getComments(),"utf-8");
+				comments=comments.replaceAll("\\+","%20");//공백이 있는경우 +바뀐것을 다시 공백으로 바꾸기
+				sb.append("<comments>" + comments +"</comments>");
+			}else{
+				sb.append("<comments>" + dto.getComments() +"</comments>");
+			}
+			sb.append("<startPage>"+pu.getStartPage()+ "</startPage>");
+			sb.append("<endPage>"+pu.getEndPage()+ "</endPage>");
+			sb.append("<pageNum>"+pu.getPageNum()+ "</pageNum>");
+			sb.append("<pageCount>"+pu.getPageCount()+ "</pageCount>");
+			sb.append("<qcref>"+dto.getQcref()+ "</qcref>");
+			sb.append("<qclev>"+dto.getQclev()+ "</qclev>");
+			sb.append("<qcstep>"+dto.getQcstep()+ "</qcstep>");
+			sb.append("<regdate>"+dto.getRegdate()+ "</regdate>");
+			sb.append("</comment>");
+		}		
+		sb.append("</comm>");
+		
+		return sb.toString();
+	}
+
+	@RequestMapping("/qna/detail/qcdelete")
+	@ResponseBody
+	public String delete(int qcnum){
+		int n=service.delete(qcnum);
+		StringBuffer sb=new StringBuffer();
+		sb.append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
+		sb.append("<result>");
+		if(n>0){
+			sb.append("<info>success</info>");
+		}else{
+			sb.append("<info>fail</info>");
+		}
+		sb.append("</result>");
+		return sb.toString();
+	}
+	@RequestMapping(value="/qna/detail/qcupdate",method=RequestMethod.GET)
+	@ResponseBody
+	public String update(int qcnum,String comments){
+		QnacommDto dto=new QnacommDto(qcnum, 0, null, comments, 0, 0, 0, null);
+		int n=service.update(dto);
+		StringBuffer sb=new StringBuffer();
+		sb.append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
+		sb.append("<result>");
+		if(n>0){
+			sb.append("<info>success</info>");
+		}else{
+			sb.append("<info>fail</info>");
+		}
+		sb.append("</result>");
+		return sb.toString();
+	}
+}

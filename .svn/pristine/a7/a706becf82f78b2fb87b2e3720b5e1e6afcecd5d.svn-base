@@ -1,0 +1,11 @@
+create table fbcomm
+(
+	fcnum number(6) primary key,
+	fbnum number(6),
+	id varchar2(30) references users(id),
+	comments varchar2(150),
+	fcref number(5),
+	fclev number(5),
+	fcstep number(5),
+	regdate date
+);

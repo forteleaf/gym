@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="gym.user.IfcommMapper">
+	<insert id="insert" parameterType="com.gym.app.dto.IfcommDto">
+		insert into ifcomm 
+		values(#{icnum},#{ifnum},#{id},#{comments},#{icref},#{iclev},#{icstep},sysdate)
+	</insert>
+	<select id="list" resultType="com.gym.app.dto.IfcommDto" parameterType="hashmap">
+	select *from(select aa.*,rownum rnum from
+	(select * from(select * from ifcomm where ifnum=#{ifnum}) order by icref desc,icstep asc )aa)
+		<![CDATA[where rnum>=#{startRow} and rnum<=#{endRow}]]>
+	</select>
+	<select id="find" resultType="com.gym.app.dto.IfcommDto" parameterType="com.gym.app.dto.IfcommDto">
+		select * from ifcomm where icnum=#{icnum} and ifnum=#{ifnum}
+	</select>
+	<select id="getMaxNum" resultType="int">
+		select NVL(max(icnum),0) from ifcomm 
+	</select>
+	<select id="getCount" resultType="int" parameterType="int">
+		select count(*) cnt from ifcomm where ifnum=#{value}
+	</select>
+	<select id="getCount1" resultType="int">
+		select count(*) cnt from ifcomm
+	</select>
+	<delete id="delete" parameterType="int">
+		delete from ifcomm where icnum=#{value}
+	</delete>
+	<update id="update" parameterType="com.gym.app.dto.IfcommDto">
+		update ifcomm set comments=#{comments} where icnum=#{icnum}
+	</update>
+	<update id="update1" parameterType="com.gym.app.dto.IfcommDto">
+		update ifcomm set icstep=icstep+1 where icref=#{icref} and icstep>#{icstep}
+	</update>
+	<select id="getPic" parameterType="String" resultType="String">
+		select savefile from users where id=#{value}
+	</select>
+</mapper>
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
